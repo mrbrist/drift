@@ -2,17 +2,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet" />
 
 <!-- Header -->
-<div align="center" style="font-family: 'Roboto', sans-serif;">
+<div align="center">
   <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-    <img src="./assets/drift-logo.svg" width="64" height="64" alt="Drift Logo" />
-    <h1 style="margin: 0; font-size: 3rem; font-weight: 500; padding-top: 12px">drift</h1>
+    <img src="./assets/drift-logo.svg" width="128" height="128" alt="Drift Logo" />
+    <h1>drift</h1>
   </div>
 
   <p style="margin-top: 8px; font-size: 1.1rem; opacity: 0.8;">
     Simple kanban boards for focused project management
   </p>
-
-  <hr style="width: 60%; margin: 24px auto; opacity: 0.2;" />
 </div>
 
 ## 🚀 What is Drift?
