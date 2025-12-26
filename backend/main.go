@@ -22,10 +22,10 @@ func main() {
 	mux := http.NewServeMux()
 
 	// HANDLERS HERE
-	mux.HandleFunc("POST /register", handlers.Register)
-	mux.HandleFunc("POST /login", handlers.Login)
-	mux.HandleFunc("POST /logout", handlers.Logout)
-	mux.HandleFunc("GET /protected", handlers.Protected)
+	mux.HandleFunc("POST /register", handlers.HandleRegister)
+	mux.HandleFunc("POST /login", handlers.HandleLogin)
+	mux.HandleFunc("POST /logout", handlers.HandleLogout)
+	mux.HandleFunc("GET /protected", handlers.HandleProtected)
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.env.Port,
