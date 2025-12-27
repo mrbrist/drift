@@ -13,6 +13,7 @@ function App() {
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: (response: any) => {
+        // SEND THE TOKEN TO THE BACKEND
         console.log('JWT:', response.credential)
       },
     })
