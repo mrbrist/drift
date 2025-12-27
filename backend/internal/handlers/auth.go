@@ -56,25 +56,17 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionToken := utils.GenerateToken(32)
-	csrfToken := utils.GenerateToken(32)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    sessionToken,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "csrf_token",
-		Value:    sessionToken,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	// TODO: SWAP FOR DB
 	user.SessionToken = sessionToken
-	user.CSRFToken = csrfToken
 	users[username] = user
 
 	fmt.Fprintln(w, "Login successful")
