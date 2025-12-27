@@ -13,4 +13,7 @@ goosedown:
 	cd backend && goose postgres $(DATABASE_URL) -dir "sql/schema" down
 
 start-fe:
-	cd frontend && echo "\nIMPLEMENT THIS"
+	cd frontend && npm run dev
+
+dev: start-be start-fe
+	echo "STARTING DEV ENVIRONMENT\n"
