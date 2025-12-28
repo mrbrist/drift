@@ -6,7 +6,7 @@ import "./App.css";
 function Home() {
   const navigate = useNavigate();
 
-  function handleLoginClick() {
+  function handleRegisterClick() {
     navigate("/login", { replace: true });
   }
 
@@ -49,9 +49,9 @@ function Home() {
             focus:outline-none
             focus:ring-2 focus:ring-blue-500/50 w-50
             "
-          onClick={handleLoginClick}
+          onClick={handleRegisterClick}
         >
-          Log In
+          Sign Up
         </button>
       </div>
     </div>

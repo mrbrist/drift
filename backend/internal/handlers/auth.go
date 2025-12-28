@@ -51,8 +51,8 @@ func (cfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    tokenString,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,                  // true in production with HTTPS
-		SameSite: http.SameSiteNoneMode, // cross-origin
+		Secure:   true,                 // true in production with HTTPS
+		SameSite: cfg.Env.HTTPSameSite, // cross-origin
 		MaxAge:   7 * 24 * 60 * 60,
 	})
 
@@ -66,8 +66,8 @@ func (cfg *APIConfig) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,                  // true in production with HTTPS
-		SameSite: http.SameSiteNoneMode, // cross-origin
+		Secure:   true,                 // true in production with HTTPS
+		SameSite: cfg.Env.HTTPSameSite, // cross-origin
 		MaxAge:   1,
 	})
 

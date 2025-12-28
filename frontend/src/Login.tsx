@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import checkIfLoggedIn from "./helpers/checkloggedin";
 import "./App.css";
+import checkIfLoggedIn from "./helpers/checkloggedin";
 
 declare global {
   interface Window {
@@ -28,23 +28,14 @@ function Login() {
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: async (response: { credential: string }) => {
         try {
-          console.log("Google JWT:", response.credential);
-
           const res = await fetch("http://localhost:8080/api/login", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({
-              GoogleJWT: response.credential,
-            }),
+            body: JSON.stringify({ GoogleJWT: response.credential }),
           });
 
-          if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || "Login failed");
-          }
+          if (!res.ok) throw new Error("Google login failed");
 
           navigate("/app", { replace: true });
         } catch (err) {
@@ -58,20 +49,58 @@ function Login() {
       {
         theme: "outline",
         size: "large",
-        width: 250,
+        width: 260,
       }
     );
-  }, []);
+  }, [navigate]);
 
   return (
-    <div className="items-center justify-center grid grid-cols-1">
-      <div>
-        <h1 className="text-4xl font-bold text-white inline-block">Drift</h1>
-      </div>
-      <div className="mt-20">
-        <div id="googleSignIn" className="justify-center flex" />
+    <div className="flex items-center justify-center text-white">
+      <div className="w-full max-w-sm space-y-6 text-center">
+        <h1 className="text-4xl font-bold">Drift</h1>
+        <p className="text-white/60">Sign in to continue</p>
+
+        {/* Google */}
+        <div id="googleSignIn" className="flex justify-center" />
+
+        {/* Divider */}
+        <div className="flex items-center gap-4">
+          <hr className="flex-1 border-white/10" />
+          <span className="text-xs text-white/40">MORE OPTIONS</span>
+          <hr className="flex-1 border-white/10" />
+        </div>
+
+        {/* Coming Soon Providers */}
+        <div className="space-y-3">
+          <ProviderButton label="GitHub" />
+          <ProviderButton label="Discord" />
+          <ProviderButton label="Apple" />
+        </div>
+
+        <p className="text-xs text-white/20 mt-6 uppercase">
+          More login options coming soon
+        </p>
       </div>
     </div>
+  );
+}
+
+function ProviderButton({ label }: { label: string }) {
+  return (
+    <button
+      disabled
+      className="
+        w-full py-3 rounded-xl
+        border border-white/10
+        bg-white/5
+        text-white/40
+        backdrop-blur
+        cursor-not-allowed
+        relative
+      "
+    >
+      <span>{label}</span>
+    </button>
   );
 }
 

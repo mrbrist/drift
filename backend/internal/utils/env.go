@@ -2,6 +2,7 @@ package utils
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -12,6 +13,7 @@ type EnvCfg struct {
 	JWTSecret      string
 	GoogleClientID string
 	DB_URL         string
+	HTTPSameSite   http.SameSite
 }
 
 func SetupEnvCfg() *EnvCfg {
@@ -37,10 +39,21 @@ func SetupEnvCfg() *EnvCfg {
 		log.Fatal("DB_URL environment variable is not set")
 	}
 
+	prod := os.Getenv("PRODUCTION")
+	if prod == "" {
+		log.Fatal("PRODUCTION environment variable is not set")
+	}
+
+	httpSameSite := http.SameSiteNoneMode
+	if prod == "false" {
+		httpSameSite = http.SameSiteStrictMode
+	}
+
 	return &EnvCfg{
 		Port:           port,
 		JWTSecret:      jwt_secret,
 		GoogleClientID: google_client_id,
 		DB_URL:         db_url,
+		HTTPSameSite:   httpSameSite,
 	}
 }
