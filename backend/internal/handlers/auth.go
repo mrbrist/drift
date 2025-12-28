@@ -3,41 +3,32 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/mrbrist/drift/backend/internal/database"
 	"github.com/mrbrist/drift/backend/internal/utils"
 )
 
+type contextKey string
+
+const userContextKey contextKey = "user"
+
 func (cfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	// parse the GoogleJWT that was POSTed from the front-end
-	type parameters struct {
-		GoogleJWT *string
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	params := parameters{}
-	err := decoder.Decode(&params)
-	if err != nil {
+	type parameters struct{ GoogleJWT *string }
+	var params parameters
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
 		utils.RespondWithError(w, 500, "Couldn't decode parameters", err)
 		return
 	}
 
-	// Validate the JWT is valid
 	claims, err := utils.ValidateGoogleJWT(*params.GoogleJWT, cfg.Env.GoogleClientID)
 	if err != nil {
 		utils.RespondWithError(w, 403, "Invalid google auth", err)
 		return
 	}
 
-	// if claims.Email != user.Email {
-	// 	respondWithError(w, 403, "Emails don't match")
-	// 	return
-	// }
-
-	user, err := cfg.DB.CreateUser(context.Background(), database.CreateUserParams{
+	user, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
 		Firstname: claims.FirstName,
 		Lastname:  claims.LastName,
 		Email:     claims.Email,
@@ -47,19 +38,48 @@ func (cfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(user)
-
-	// create a JWT for OUR app and give it back to the client for future requests
+	// Make app JWT
 	tokenString, err := utils.MakeJWT(claims.Email, cfg.Env.JWTSecret)
 	if err != nil {
 		utils.RespondWithError(w, 500, "Couldn't make authentication token", err)
 		return
 	}
 
-	utils.RespondWithJSON(w, 200, struct {
-		Token string `json:"token"`
-	}{
-		Token: tokenString,
+	// Set HttpOnly cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    tokenString,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,                  // true in production with HTTPS
+		SameSite: http.SameSiteNoneMode, // cross-origin
+		MaxAge:   7 * 24 * 60 * 60,
 	})
 
+	utils.RespondWithJSON(w, 200, user)
+}
+
+func (cfg *APIConfig) AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("auth_token")
+		if err != nil {
+			utils.RespondWithError(w, 401, "Missing auth token", err)
+			return
+		}
+
+		email, err := utils.ValidateJWT(cookie.Value, cfg.Env.JWTSecret)
+		if err != nil {
+			utils.RespondWithError(w, 401, "Invalid or expired token", err)
+			return
+		}
+
+		user, err := cfg.DB.GetUserByEmail(r.Context(), email)
+		if err != nil {
+			utils.RespondWithError(w, 401, "User not found", err)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), userContextKey, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

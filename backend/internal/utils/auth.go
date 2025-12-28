@@ -135,3 +135,26 @@ func MakeJWT(
 	})
 	return token.SignedString(signingKey)
 }
+
+func ValidateJWT(tokenString, tokenSecret string) (string, error) {
+	signingKey := []byte(tokenSecret)
+
+	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return signingKey, nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+		if claims.ExpiresAt != nil && time.Now().After(claims.ExpiresAt.Time) {
+			return "", errors.New("token expired")
+		}
+		return claims.Subject, nil
+	}
+
+	return "", errors.New("invalid token")
+}

@@ -31,11 +31,11 @@ func main() {
 
 	// HANDLERS HERE
 	mux.HandleFunc("POST /login", cfg.LoginHandler)
+	mux.Handle("GET /app", cfg.AuthMiddleware(http.HandlerFunc(cfg.AppHandler)))
 
-	handler := middleware.CORS("http://localhost:5173")(mux)
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,
-		Handler: handler,
+		Handler: middleware.CORSMiddleware(mux),
 	}
 
 	log.Printf("Serving on: http://localhost:%s/\n", cfg.Env.Port)

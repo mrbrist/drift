@@ -8,6 +8,20 @@ declare global {
   }
 }
 
+function attemptLogin() {
+  fetch("http://localhost:8080/app", {
+      method: "GET",
+      credentials: "include", // important if backend is on a different domain/port
+    })
+      .then(res => res.text())
+      .then(data => console.log(data));
+
+    if (!window.google) {
+      console.error('Google Identity Services not loaded')
+      return
+    }
+}
+
 function App() {
   const initialized = useRef(false)
 
@@ -15,10 +29,7 @@ function App() {
     if (initialized.current) return
     initialized.current = true
 
-    if (!window.google) {
-      console.error('Google Identity Services not loaded')
-      return
-    }
+    attemptLogin()
 
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
@@ -31,6 +42,7 @@ function App() {
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: "include",
             body: JSON.stringify({
               GoogleJWT: response.credential,
             }),
@@ -41,12 +53,11 @@ function App() {
             throw new Error(err.error || 'Login failed')
           }
 
-          const data: { token: string } = await res.json()
+          attemptLogin()
 
-          // Store your app JWT
-          localStorage.setItem('auth_token', data.token)
+          // const data: { token: string } = await res.json()
 
-          console.log('App JWT:', data.token)
+          // console.log('App JWT:', data.token)
         } catch (err) {
           console.error('Login error:', err)
         }
