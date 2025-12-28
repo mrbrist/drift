@@ -12,6 +12,9 @@ gooseup:
 goosedown:
 	cd backend && goose postgres $(DB_URL) -dir "sql/schema" down
 
+goosereset:
+	cd backend && goose postgres $(DB_URL) -dir "sql/schema" reset
+
 start-fe:
 	cd frontend && npm run dev
 
