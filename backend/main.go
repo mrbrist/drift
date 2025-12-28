@@ -5,33 +5,28 @@ import (
 	"net/http"
 
 	"github.com/mrbrist/drift/backend/internal/handlers"
+	"github.com/mrbrist/drift/backend/internal/middleware"
 	"github.com/mrbrist/drift/backend/internal/utils"
 )
-
-type apiConfig struct {
-	env *utils.EnvCfg
-}
 
 func main() {
 	envCfg := utils.SetupEnvCfg()
 
-	cfg := apiConfig{
-		env: envCfg,
+	cfg := &handlers.APIConfig{
+		Env: envCfg,
 	}
 
 	mux := http.NewServeMux()
 
 	// HANDLERS HERE
-	mux.HandleFunc("POST /register", handlers.HandleRegister)
-	mux.HandleFunc("POST /login", handlers.HandleLogin)
-	mux.HandleFunc("POST /logout", handlers.HandleLogout)
-	mux.HandleFunc("GET /protected", handlers.HandleProtected)
+	mux.HandleFunc("POST /login", cfg.LoginHandler)
 
+	handler := middleware.CORS("http://localhost:5174")(mux)
 	srv := &http.Server{
-		Addr:    ":" + cfg.env.Port,
-		Handler: mux,
+		Addr:    ":" + cfg.Env.Port,
+		Handler: handler,
 	}
 
-	log.Printf("Serving on: http://localhost:%s/app/\n", cfg.env.Port)
+	log.Printf("Serving on: http://localhost:%s/\n", cfg.Env.Port)
 	log.Fatal(srv.ListenAndServe())
 }

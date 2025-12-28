@@ -1,81 +1,50 @@
 package handlers
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/mrbrist/drift/backend/internal/utils"
 )
 
-type Login struct {
-	HashedPassword string
-	SessionToken   string
-	CSRFToken      string
-}
+func (cfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	// parse the GoogleJWT that was POSTed from the front-end
+	type parameters struct {
+		GoogleJWT *string
+	}
 
-var users = map[string]Login{}
-
-func HandleRegister(w http.ResponseWriter, r *http.Request) {
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	if len(username) < 2 || len(password) < 2 {
-		err := http.StatusNotAcceptable
-		http.Error(w, "Invalid username/password", err)
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		utils.RespondWithError(w, 500, "Couldn't decode parameters", err)
 		return
 	}
 
-	// TODO: SWAP FOR DB
-	if _, ok := users[username]; ok {
-		err := http.StatusConflict
-		http.Error(w, "User already exists", err)
+	// Validate the JWT is valid
+	claims, err := utils.ValidateGoogleJWT(*params.GoogleJWT, cfg.Env.GoogleClientID)
+	if err != nil {
+		utils.RespondWithError(w, 403, "Invalid google auth", err)
 		return
 	}
 
-	hashedPassword, _ := utils.HashPassword(password)
+	// if claims.Email != user.Email {
+	// 	respondWithError(w, 403, "Emails don't match")
+	// 	return
+	// }
 
-	// TODO: SWAP FOR DB
-	users[username] = Login{
-		HashedPassword: hashedPassword,
-	}
-
-	fmt.Fprintln(w, "User registered successfully")
-}
-
-func HandleLogin(w http.ResponseWriter, r *http.Request) {
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	// TODO: SWAP FOR DB
-	user, ok := users[username]
-	if !ok || !utils.CheckPasswordHash(password, user.HashedPassword) {
-		err := http.StatusUnauthorized
-		http.Error(w, "Invalid username/password", err)
+	// create a JWT for OUR app and give it back to the client for future requests
+	tokenString, err := utils.MakeJWT(claims.Email, cfg.Env.JWTSecret)
+	if err != nil {
+		utils.RespondWithError(w, 500, "Couldn't make authentication token", err)
 		return
 	}
 
-	sessionToken := utils.GenerateToken(32)
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		Value:    sessionToken,
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
+	utils.RespondWithJSON(w, 200, struct {
+		Token string `json:"token"`
+	}{
+		Token: tokenString,
 	})
-
-	// TODO: SWAP FOR DB
-	user.SessionToken = sessionToken
-	users[username] = user
-
-	fmt.Fprintln(w, "Login successful")
-}
-
-func HandleLogout(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func HandleProtected(w http.ResponseWriter, r *http.Request) {
 
 }

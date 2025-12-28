@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import driftLogo from './assets/drift-logo.svg'
 import './App.css'
 
@@ -9,12 +9,47 @@ declare global {
 }
 
 function App() {
+  const initialized = useRef(false)
+
   useEffect(() => {
+    if (initialized.current) return
+    initialized.current = true
+
+    if (!window.google) {
+      console.error('Google Identity Services not loaded')
+      return
+    }
+
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: (response: any) => {
-        // SEND THE TOKEN TO THE BACKEND
-        console.log('JWT:', response.credential)
+      callback: async (response: { credential: string }) => {
+        try {
+          console.log('Google JWT:', response.credential)
+
+          const res = await fetch('http://localhost:8080/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              GoogleJWT: response.credential,
+            }),
+          })
+
+          if (!res.ok) {
+            const err = await res.json()
+            throw new Error(err.error || 'Login failed')
+          }
+
+          const data: { token: string } = await res.json()
+
+          // Store your app JWT
+          localStorage.setItem('auth_token', data.token)
+
+          console.log('App JWT:', data.token)
+        } catch (err) {
+          console.error('Login error:', err)
+        }
       },
     })
 
@@ -27,22 +62,29 @@ function App() {
       }
     )
   }, [])
+
   return (
-    <>
     <div className="items-center justify-center grid grid-cols-1">
       <div>
-        <img src={driftLogo} className="inline-block" alt="Drift Logo" width="200px"/>
+        <img
+          src={driftLogo}
+          className="inline-block"
+          alt="Drift Logo"
+          width="200"
+        />
       </div>
+
       <div>
         <h1 className="text-4xl font-bold text-white inline-block">drift</h1>
-        <h2 className='mt-4 text-white'>Simple kanban boards for focused project management</h2>
+        <h2 className="mt-4 text-white">
+          Simple kanban boards for focused project management
+        </h2>
       </div>
-      <div className='mt-20'>
-        {/* Login with Google */}
-        <div id="googleSignIn" className='justify-center flex'></div>
+
+      <div className="mt-20">
+        <div id="googleSignIn" className="justify-center flex" />
       </div>
     </div>
-    </>
   )
 }
 
