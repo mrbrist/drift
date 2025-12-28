@@ -59,6 +59,21 @@ func (cfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, 200, user)
 }
 
+func (cfg *APIConfig) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	// Reset cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,                  // true in production with HTTPS
+		SameSite: http.SameSiteNoneMode, // cross-origin
+		MaxAge:   1,
+	})
+
+	utils.RespondWithJSON(w, 200, "LOGGED OUT")
+}
+
 func (cfg *APIConfig) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("auth_token")
@@ -82,4 +97,8 @@ func (cfg *APIConfig) AuthMiddleware(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), userContextKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (cfg *APIConfig) ProtectedHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
 }

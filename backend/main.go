@@ -30,8 +30,9 @@ func main() {
 	mux := http.NewServeMux()
 
 	// HANDLERS HERE
-	mux.HandleFunc("POST /login", cfg.LoginHandler)
-	mux.Handle("GET /app", cfg.AuthMiddleware(http.HandlerFunc(cfg.AppHandler)))
+	mux.HandleFunc("POST /api/login", cfg.LoginHandler)
+	mux.HandleFunc("/api/logout", cfg.LogoutHandler)
+	mux.Handle("GET /api/protected", cfg.AuthMiddleware(http.HandlerFunc(cfg.ProtectedHandler)))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,

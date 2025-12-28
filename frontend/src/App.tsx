@@ -1,78 +1,23 @@
-import { useEffect, useRef } from 'react'
-import driftLogo from './assets/drift-logo.svg'
-import './App.css'
-
-declare global {
-  interface Window {
-    google: any
-  }
-}
-
-function attemptLogin() {
-  fetch("http://localhost:8080/app", {
-      method: "GET",
-      credentials: "include", // important if backend is on a different domain/port
-    })
-      .then(res => res.text())
-      .then(data => console.log(data));
-
-    if (!window.google) {
-      console.error('Google Identity Services not loaded')
-      return
-    }
-}
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import checkIfLoggedIn from "./helpers/checkloggedin";
+import driftLogo from "./assets/drift-logo.svg";
+import "./App.css";
 
 function App() {
-  const initialized = useRef(false)
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    fetch("http://localhost:8080/api/logout", {
+      credentials: "include",
+    }).then(() => {
+      checkIfLoggedIn(navigate, "/app", "/login");
+    });
+  }
 
   useEffect(() => {
-    if (initialized.current) return
-    initialized.current = true
-
-    attemptLogin()
-
-    window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: async (response: { credential: string }) => {
-        try {
-          console.log('Google JWT:', response.credential)
-
-          const res = await fetch('http://localhost:8080/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: "include",
-            body: JSON.stringify({
-              GoogleJWT: response.credential,
-            }),
-          })
-
-          if (!res.ok) {
-            const err = await res.json()
-            throw new Error(err.error || 'Login failed')
-          }
-
-          attemptLogin()
-
-          // const data: { token: string } = await res.json()
-
-          // console.log('App JWT:', data.token)
-        } catch (err) {
-          console.error('Login error:', err)
-        }
-      },
-    })
-
-    window.google.accounts.id.renderButton(
-      document.getElementById('googleSignIn')!,
-      {
-        theme: 'outline',
-        size: 'large',
-        width: 250,
-      }
-    )
-  }, [])
+    checkIfLoggedIn(navigate, "/app", "/login");
+  }, []);
 
   return (
     <div className="items-center justify-center grid grid-cols-1">
@@ -92,11 +37,36 @@ function App() {
         </h2>
       </div>
 
+      <div className="mt-20 text-white">
+        <h1>LOGGED IN</h1>
+      </div>
       <div className="mt-20">
-        <div id="googleSignIn" className="justify-center flex" />
+        <button
+          className="
+              relative
+              px-8 py-3
+              rounded-xl
+              font-semibold
+              text-red-400
+              border border-red-500/40
+              bg-red-500/5
+              backdrop-blur
+              transition-all duration-300 ease-out
+              hover:text-white
+              hover:bg-red-500/20
+              hover:border-red-400
+              hover:shadow-[0_0_25px_-5px_rgba(239,68,68,0.6)]
+              focus:outline-none
+              focus:ring-2 focus:ring-red-500/50
+              w-50
+            "
+          onClick={handleLogout}
+        >
+          Log Out
+        </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
