@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/mrbrist/drift/backend/internal/database"
 	"github.com/mrbrist/drift/backend/internal/utils"
 )
 
@@ -33,6 +36,18 @@ func (cfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// 	respondWithError(w, 403, "Emails don't match")
 	// 	return
 	// }
+
+	user, err := cfg.DB.CreateUser(context.Background(), database.CreateUserParams{
+		Firstname: claims.FirstName,
+		Lastname:  claims.LastName,
+		Email:     claims.Email,
+	})
+	if err != nil {
+		utils.RespondWithError(w, 403, "Could not create user", err)
+		return
+	}
+
+	fmt.Println(user)
 
 	// create a JWT for OUR app and give it back to the client for future requests
 	tokenString, err := utils.MakeJWT(claims.Email, cfg.Env.JWTSecret)

@@ -128,9 +128,10 @@ func MakeJWT(
 ) (string, error) {
 	signingKey := []byte(tokenSecret)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Issuer:   string(TokenTypeAccess),
-		IssuedAt: jwt.NewNumericDate(time.Now().UTC()),
-		Subject:  email,
+		Issuer:    string(TokenTypeAccess),
+		IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
+		Subject:   email,
 	})
 	return token.SignedString(signingKey)
 }
