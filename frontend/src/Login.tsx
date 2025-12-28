@@ -13,6 +13,10 @@ function Login() {
   const initialized = useRef(false);
   const navigate = useNavigate();
 
+  function goHome() {
+    navigate("/");
+  }
+
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
@@ -57,7 +61,9 @@ function Login() {
   return (
     <div className="flex items-center justify-center text-white">
       <div className="w-full max-w-sm space-y-6 text-center">
-        <h1 className="text-4xl font-bold">Drift</h1>
+        <h1 className="text-4xl font-bold cursor-pointer" onClick={goHome}>
+          drift
+        </h1>
         <p className="text-white/60">Sign in to continue</p>
 
         {/* Google */}
@@ -73,13 +79,9 @@ function Login() {
         {/* Coming Soon Providers */}
         <div className="space-y-3">
           <ProviderButton label="GitHub" />
-          <ProviderButton label="Discord" />
+          <ProviderButton label="Facebook" />
           <ProviderButton label="Apple" />
         </div>
-
-        <p className="text-xs text-white/20 mt-6 uppercase">
-          More login options coming soon
-        </p>
       </div>
     </div>
   );

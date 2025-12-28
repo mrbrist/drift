@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import driftLogo from "./assets/drift-logo.svg";
 import "./App.css";
+import bigButton from "./helpers/bigButton";
 
 function Home() {
   const navigate = useNavigate();
@@ -31,28 +32,7 @@ function Home() {
       </div>
 
       <div className="mt-20">
-        <button
-          className="
-            relative
-            px-8 py-3
-            rounded-xl
-            font-semibold
-            text-blue-400
-            border border-blue-500/40
-            bg-blue-500/5
-            backdrop-blur
-            transition-all duration-300 ease-out
-            hover:text-white
-            hover:bg-blue-500/20
-            hover:border-blue-400
-            hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.6)]
-            focus:outline-none
-            focus:ring-2 focus:ring-blue-500/50 w-50
-            "
-          onClick={handleRegisterClick}
-        >
-          Sign Up
-        </button>
+        {bigButton("blue", "50", "Sign Up", true, handleRegisterClick)}
       </div>
     </div>
   );
