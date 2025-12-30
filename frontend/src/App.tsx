@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import checkIfLoggedIn from "./helpers/checkloggedin";
 import driftLogo from "./assets/drift-logo.svg";
 import "./App.css";
-import bigButton from "./helpers/bigButton";
+import { bButton } from "./helpers/bigButton";
 
 function App() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ function App() {
         <h1>LOGGED IN</h1>
       </div>
       <div className="mt-20">
-        {bigButton("green", "50", "Log Out", false, handleLogout)}
+        {bButton("red", "md", "Log Out", false, handleLogout)}
       </div>
     </div>
   );

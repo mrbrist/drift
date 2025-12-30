@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import driftLogo from "./assets/drift-logo.svg";
 import "./App.css";
-import bigButton from "./helpers/bigButton";
+import { bButton } from "./helpers/bigButton";
 
 function Home() {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ function Home() {
       </div>
 
       <div className="mt-20">
-        {bigButton("blue", "50", "Sign Up", true, handleRegisterClick)}
+        {bButton("blue", "md", "Sign Up", true, handleRegisterClick)}
       </div>
     </div>
   );
