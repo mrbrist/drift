@@ -42,7 +42,7 @@ function App() {
         <h1>LOGGED IN</h1>
       </div>
       <div className="mt-20">
-        {bigButton("red", "50", "Log Out", false, handleLogout)}
+        {bigButton("green", "50", "Log Out", false, handleLogout)}
       </div>
     </div>
   );

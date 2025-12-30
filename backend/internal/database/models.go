@@ -5,10 +5,38 @@
 package database
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type Board struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Title     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type BoardColumn struct {
+	ID        uuid.UUID
+	BoardID   uuid.UUID
+	Title     string
+	Position  int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Card struct {
+	ID          uuid.UUID
+	ColumnID    uuid.UUID
+	Title       string
+	Description sql.NullString
+	Position    int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
 
 type User struct {
 	ID        uuid.UUID
