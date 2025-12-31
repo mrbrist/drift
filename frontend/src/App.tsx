@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import driftLogo from "./assets/drift-logo.svg";
-import "./App.css";
-import { bButton } from "./helpers/bigButton";
+import { bButton } from "./modules/bigButton";
 import {
   checkIfLoggedIn,
   getUserData,
