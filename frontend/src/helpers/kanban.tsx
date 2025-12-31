@@ -1,6 +1,6 @@
 async function getUserData(setUserData: Function) {
   try {
-    const res = await fetch("http://localhost:8080/api/app", {
+    const res = await fetch("http://localhost:8080/api/getUser", {
       credentials: "include",
     });
 

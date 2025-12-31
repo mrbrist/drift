@@ -34,7 +34,7 @@ func main() {
 	mux.HandleFunc("/api/logout", cfg.LogoutHandler)
 	mux.Handle("GET /api/protected", cfg.AuthMiddleware(http.HandlerFunc(cfg.ProtectedHandler)))
 
-	mux.Handle("GET /api/app", cfg.AuthMiddleware(http.HandlerFunc(cfg.AppHandler)))
+	mux.Handle("GET /api/getUser", cfg.AuthMiddleware(http.HandlerFunc(cfg.GetUser)))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,
