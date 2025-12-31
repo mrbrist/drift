@@ -7,5 +7,5 @@ import (
 )
 
 func (cfg *APIConfig) AppHandler(w http.ResponseWriter, r *http.Request) {
-	utils.RespondWithJSON(w, 200, r.Context().Value("user"))
+	utils.RespondWithJSON(w, 200, r.Context().Value(userContextKey))
 }

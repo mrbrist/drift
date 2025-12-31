@@ -1,12 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import checkIfLoggedIn from "./helpers/checkloggedin";
 import driftLogo from "./assets/drift-logo.svg";
 import "./App.css";
 import { bButton } from "./helpers/bigButton";
+import getUserData from "./helpers/kanban";
+import type { UserInterface } from "./helpers/interfaces";
 
 function App() {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState<UserInterface | null>(null);
 
   function handleLogout() {
     fetch("http://localhost:8080/api/logout", {
@@ -18,6 +21,8 @@ function App() {
 
   useEffect(() => {
     checkIfLoggedIn(navigate, "/app", "/login");
+
+    getUserData(setUserData);
   }, []);
 
   return (
@@ -40,6 +45,7 @@ function App() {
 
       <div className="mt-20 text-white">
         <h1>LOGGED IN</h1>
+        <h2>{userData?.Email}</h2>
       </div>
       <div className="mt-20">
         {bButton("red", "md", "Log Out", false, handleLogout)}

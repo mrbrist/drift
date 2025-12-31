@@ -14,6 +14,7 @@ type EnvCfg struct {
 	GoogleClientID string
 	DB_URL         string
 	HTTPSameSite   http.SameSite
+	IsProd         bool
 }
 
 func SetupEnvCfg() *EnvCfg {
@@ -49,11 +50,17 @@ func SetupEnvCfg() *EnvCfg {
 		httpSameSite = http.SameSiteStrictMode
 	}
 
+	isprod := true
+	if prod == "false" {
+		isprod = false
+	}
+
 	return &EnvCfg{
 		Port:           port,
 		JWTSecret:      jwt_secret,
 		GoogleClientID: google_client_id,
 		DB_URL:         db_url,
 		HTTPSameSite:   httpSameSite,
+		IsProd:         isprod,
 	}
 }

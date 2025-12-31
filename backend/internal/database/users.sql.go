@@ -20,7 +20,7 @@ VALUES (
     $2,
     $3
 )
-RETURNING id, created_at, firstname, lastname, email
+RETURNING id, created_at, firstname, lastname, email, is_admin
 `
 
 type CreateUserParams struct {
@@ -38,6 +38,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Firstname,
 		&i.Lastname,
 		&i.Email,
+		&i.IsAdmin,
 	)
 	return i, err
 }
@@ -53,7 +54,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, created_at, firstname, lastname, email
+SELECT id, created_at, firstname, lastname, email, is_admin
 FROM users
 WHERE email = $1
 `
@@ -67,12 +68,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Firstname,
 		&i.Lastname,
 		&i.Email,
+		&i.IsAdmin,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_at, firstname, lastname, email
+SELECT id, created_at, firstname, lastname, email, is_admin
 FROM users
 WHERE id = $1
 `
@@ -86,6 +88,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Firstname,
 		&i.Lastname,
 		&i.Email,
+		&i.IsAdmin,
 	)
 	return i, err
 }
@@ -97,7 +100,7 @@ SET
     lastname  = $3,
     email     = $4
 WHERE id = $1
-RETURNING id, created_at, firstname, lastname, email
+RETURNING id, created_at, firstname, lastname, email, is_admin
 `
 
 type UpdateUserParams struct {
@@ -121,6 +124,22 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Firstname,
 		&i.Lastname,
 		&i.Email,
+		&i.IsAdmin,
 	)
 	return i, err
+}
+
+const userExistsByEmail = `-- name: UserExistsByEmail :one
+SELECT EXISTS (
+    SELECT 1
+    FROM users
+    WHERE email = $1
+)
+`
+
+func (q *Queries) UserExistsByEmail(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, userExistsByEmail, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
