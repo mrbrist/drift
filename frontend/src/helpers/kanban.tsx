@@ -1,16 +1,15 @@
-async function getUserData(setUserData: Function) {
-  try {
-    const res = await fetch("http://localhost:8080/api/getUser", {
-      credentials: "include",
-    });
+import { createBoard } from "./api";
+import type { BoardsInterface } from "./interfaces";
+import type { Dispatch, SetStateAction } from "react";
 
-    if (res.ok) {
-      let json = await res.json();
-      setUserData(json);
-    }
-  } catch (err) {
-    console.log(err);
+async function handleCreateBoard(
+  setBoards: Dispatch<SetStateAction<BoardsInterface>>
+) {
+  const newBoard = await createBoard();
+
+  if (newBoard) {
+    setBoards((prev) => [...prev, newBoard]);
   }
 }
 
-export default getUserData;
+export { handleCreateBoard };

@@ -95,3 +95,9 @@ SELECT
     created_at,
     updated_at
 FROM new_board;
+
+-- name: GetBoardsForUser :many
+SELECT * FROM boards WHERE user_id = $1 ORDER BY created_at;
+
+-- name: DeleteBoard :exec
+DELETE FROM boards WHERE id = $1;

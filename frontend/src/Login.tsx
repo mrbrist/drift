@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
-import checkIfLoggedIn from "./helpers/checkloggedin";
+import { checkIfLoggedIn } from "./helpers/api";
 
 declare global {
   interface Window {

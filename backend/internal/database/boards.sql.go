@@ -90,6 +90,15 @@ func (q *Queries) CreateBoard(ctx context.Context, arg CreateBoardParams) (Creat
 	return i, err
 }
 
+const deleteBoard = `-- name: DeleteBoard :exec
+DELETE FROM boards WHERE id = $1
+`
+
+func (q *Queries) DeleteBoard(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteBoard, id)
+	return err
+}
+
 const getBoardByID = `-- name: GetBoardByID :one
 SELECT
     b.id,
@@ -159,4 +168,37 @@ func (q *Queries) GetBoardByID(ctx context.Context, id uuid.UUID) (GetBoardByIDR
 		&i.Columns,
 	)
 	return i, err
+}
+
+const getBoardsForUser = `-- name: GetBoardsForUser :many
+SELECT id, user_id, title, created_at, updated_at FROM boards WHERE user_id = $1 ORDER BY created_at
+`
+
+func (q *Queries) GetBoardsForUser(ctx context.Context, userID uuid.UUID) ([]Board, error) {
+	rows, err := q.db.QueryContext(ctx, getBoardsForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Board
+	for rows.Next() {
+		var i Board
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

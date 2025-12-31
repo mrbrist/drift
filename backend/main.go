@@ -29,12 +29,19 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// HANDLERS HERE
+	// Auth
 	mux.HandleFunc("POST /api/login", cfg.LoginHandler)
 	mux.HandleFunc("/api/logout", cfg.LogoutHandler)
 	mux.Handle("GET /api/protected", cfg.AuthMiddleware(http.HandlerFunc(cfg.ProtectedHandler)))
 
+	// User
 	mux.Handle("GET /api/getUser", cfg.AuthMiddleware(http.HandlerFunc(cfg.GetUser)))
+
+	// Boards
+	mux.Handle("GET /api/boards", cfg.AuthMiddleware(http.HandlerFunc(cfg.GetBoards)))
+
+	mux.Handle("POST /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.NewBoard)))
+	mux.Handle("DELETE /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.DeleteBoard)))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,
