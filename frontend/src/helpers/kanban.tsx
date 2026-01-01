@@ -8,7 +8,7 @@ async function handleCreateBoard(
   const newBoard = await createBoard();
 
   if (newBoard) {
-    setBoards((prev) => [...prev, newBoard]);
+    setBoards((prev) => [...(prev || []), newBoard]);
   }
 }
 
