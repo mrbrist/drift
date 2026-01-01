@@ -7,6 +7,7 @@ import {
   getUserData,
   getBoards,
   deleteBoard,
+  getBoard,
 } from "./helpers/api";
 import type { BoardsInterface, UserInterface } from "./helpers/interfaces";
 import { handleCreateBoard } from "./helpers/kanban";
@@ -83,6 +84,25 @@ function App() {
               }}
             >
               Delete
+            </button>
+            <button
+              className="ml-3
+                        mb-3
+                        px-3 py-1
+                        text-sm font-medium
+                        text-blue-500
+                        border border-blue-500/30
+                        rounded-md
+                        hover:bg-blue-500 hover:text-white
+                        hover:border-blue-500
+                        transition-colors
+                        duration-150"
+              onClick={async () => {
+                const boardData = await getBoard(board.ID);
+                console.log(boardData);
+              }}
+            >
+              Get Data
             </button>
           </h4>
         ))}

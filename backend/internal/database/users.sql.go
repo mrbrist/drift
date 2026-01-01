@@ -14,12 +14,12 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (id, created_at, firstname, lastname, email)
 VALUES (
-    gen_random_uuid(),
-    now(),
-    $1,
-    $2,
-    $3
-)
+        gen_random_uuid(),
+        now(),
+        $1,
+        $2,
+        $3
+    )
 RETURNING id, created_at, firstname, lastname, email, is_admin
 `
 
@@ -95,10 +95,9 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET
-    firstname = $2,
-    lastname  = $3,
-    email     = $4
+SET firstname = $2,
+    lastname = $3,
+    email = $4
 WHERE id = $1
 RETURNING id, created_at, firstname, lastname, email, is_admin
 `
@@ -131,10 +130,10 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 
 const userExistsByEmail = `-- name: UserExistsByEmail :one
 SELECT EXISTS (
-    SELECT 1
-    FROM users
-    WHERE email = $1
-)
+        SELECT 1
+        FROM users
+        WHERE email = $1
+    )
 `
 
 func (q *Queries) UserExistsByEmail(ctx context.Context, email string) (bool, error) {

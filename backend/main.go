@@ -42,6 +42,7 @@ func main() {
 
 	mux.Handle("POST /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.NewBoard)))
 	mux.Handle("DELETE /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.DeleteBoard)))
+	mux.Handle("GET /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.GetBoard)))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,

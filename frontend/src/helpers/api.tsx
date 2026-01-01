@@ -1,4 +1,5 @@
 import type { NavigateFunction } from "react-router-dom";
+import type { Board } from "./interfaces";
 
 async function checkIfLoggedIn(
   nav: NavigateFunction,
@@ -51,6 +52,21 @@ async function getBoards(setBoards: Function) {
   }
 }
 
+async function getBoard(id: string): Promise<Board | null> {
+  try {
+    const res = await fetch(`http://localhost:8080/api/board?id=${id}`, {
+      credentials: "include",
+      method: "get",
+    });
+
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
 async function createBoard() {
   try {
     const res = await fetch("http://localhost:8080/api/board", {
@@ -80,4 +96,11 @@ async function deleteBoard(id: string) {
   }
 }
 
-export { checkIfLoggedIn, getUserData, getBoards, createBoard, deleteBoard };
+export {
+  checkIfLoggedIn,
+  getUserData,
+  getBoards,
+  getBoard,
+  createBoard,
+  deleteBoard,
+};
