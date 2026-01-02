@@ -1,0 +1,26 @@
+name: TODO
+description: Used for planning purposes
+title: "[TODO] "
+labels:
+  - TODO
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should exist when this is done?
+      placeholder: The user can...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: Small steps needed to finish
+      placeholder: |
+        - [ ] Step 1
+        - [ ] Step 2
+        - [ ] Step 3
+    validations:
+      required: true
