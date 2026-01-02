@@ -32,17 +32,17 @@ func main() {
 	// Auth
 	mux.HandleFunc("POST /api/login", cfg.LoginHandler)
 	mux.HandleFunc("/api/logout", cfg.LogoutHandler)
-	mux.Handle("GET /api/protected", cfg.AuthMiddleware(http.HandlerFunc(cfg.ProtectedHandler)))
+	mux.Handle("GET /api/protected", cfg.RequireLoggedIn(http.HandlerFunc(cfg.ProtectedHandler)))
 
 	// User
-	mux.Handle("GET /api/getUser", cfg.AuthMiddleware(http.HandlerFunc(cfg.GetUser)))
+	mux.Handle("GET /api/getUser", cfg.RequireLoggedIn(http.HandlerFunc(cfg.GetUser)))
 
 	// Boards
-	mux.Handle("GET /api/boards", cfg.AuthMiddleware(http.HandlerFunc(cfg.GetBoards)))
+	mux.Handle("GET /api/boards", cfg.RequireLoggedIn(http.HandlerFunc(cfg.GetBoards)))
 
-	mux.Handle("POST /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.NewBoard)))
-	mux.Handle("DELETE /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.DeleteBoard)))
-	mux.Handle("GET /api/board", cfg.AuthMiddleware(http.HandlerFunc(cfg.GetBoard)))
+	mux.Handle("POST /api/board", cfg.RequireLoggedIn(cfg.RequireAllowed(http.HandlerFunc(cfg.NewBoard))))
+	mux.Handle("DELETE /api/board", cfg.RequireLoggedIn(cfg.RequireAllowed(http.HandlerFunc(cfg.DeleteBoard))))
+	mux.Handle("GET /api/board", cfg.RequireLoggedIn(cfg.RequireAllowed(http.HandlerFunc(cfg.GetBoard))))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,

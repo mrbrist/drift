@@ -94,7 +94,16 @@ func (cfg *APIConfig) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, 200, "LOGGED OUT")
 }
 
-func (cfg *APIConfig) AuthMiddleware(next http.Handler) http.Handler {
+func (cfg *APIConfig) ProtectedHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+}
+
+/*
+	AUTH MIDDLEWARE
+*/
+
+func (cfg *APIConfig) RequireLoggedIn(next http.Handler) http.Handler {
+	// Make sure the user is logged in
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("auth_token")
 		if err != nil {
@@ -119,6 +128,7 @@ func (cfg *APIConfig) AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (cfg *APIConfig) ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
+func (cfg *APIConfig) RequireAllowed(next http.Handler) http.Handler {
+	// Ensure they are actually allowed to access the resource
+	return next
 }
