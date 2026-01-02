@@ -96,7 +96,16 @@ func (cfg *APIConfig) NewBoard(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, 500, "Couldn't create board", err)
 		return
 	}
-	utils.RespondWithJSON(w, 200, board)
+
+	resp := models.Board{
+		ID:        board.ID,
+		UserID:    board.UserID,
+		Title:     board.Title,
+		CreatedAt: board.CreatedAt,
+		UpdatedAt: board.UpdatedAt,
+	}
+
+	utils.RespondWithJSON(w, 200, resp)
 }
 
 func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { bButton } from "./modules/bigButton";
-import { checkIfLoggedIn, getBoard } from "./helpers/api";
+import { checkIfLoggedIn, getBoard, handleLogout } from "./helpers/api";
 import type { BoardInterface } from "./helpers/interfaces";
 
 function Board() {
@@ -9,12 +9,8 @@ function Board() {
   const navigate = useNavigate();
   const [board, setBoard] = useState<BoardInterface | null>(null);
 
-  function handleLogout() {
-    fetch("http://localhost:8080/api/logout", {
-      credentials: "include",
-    }).then(() => {
-      checkIfLoggedIn(navigate, "/app", "/login");
-    });
+  function goHome() {
+    navigate("/app");
   }
 
   useEffect(() => {
@@ -41,7 +37,8 @@ function Board() {
         <br />
         {board ? board.id : "Loading board..."}
         <div className="mt-20">
-          {bButton("red", "md", "Log Out", false, handleLogout)}
+          {bButton("blue", "md", "Home", false, "mr-2", goHome)}
+          {bButton("red", "md", "Log Out", false, "", handleLogout)}
         </div>
       </div>
     </div>

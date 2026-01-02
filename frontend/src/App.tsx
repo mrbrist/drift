@@ -38,7 +38,7 @@ function App() {
           src={driftLogo}
           className="inline-block"
           alt="Drift Logo"
-          width="200"
+          width="100"
         />
       </div>
 
@@ -49,13 +49,18 @@ function App() {
         </h2>
       </div>
 
-      <div className="mt-20 text-white">
+      <div className="mt-10 text-white">
         <h1>LOGGED IN</h1>
-        <h2>{userData?.email}</h2>
-        {bButton("green", "md", "New Board", false, () =>
-          handleCreateBoard(setBoards)
-        )}
-        <br />
+        <h2 className="pb-5 text-slate-400">{userData?.email}</h2>
+        <div className="ml">
+          {bButton("green", "md", "New Board", false, "mr-2", () =>
+            handleCreateBoard(setBoards)
+          )}
+
+          {bButton("red", "md", "Log Out", false, "", handleLogout)}
+        </div>
+
+        <div className="pb-5" />
         {boards?.map((board) => (
           <h4 key={board.id}>
             {board.title} - <span className="text-slate-600">{board.id}</span>{" "}
@@ -104,9 +109,6 @@ function App() {
             </button>
           </h4>
         ))}
-      </div>
-      <div className="mt-20">
-        {bButton("red", "md", "Log Out", false, handleLogout)}
       </div>
     </div>
   );

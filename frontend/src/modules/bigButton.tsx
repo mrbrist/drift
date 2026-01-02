@@ -3,6 +3,7 @@ function bigButton(
   width: string,
   text: string,
   glow: boolean,
+  classNames: string,
   onClick: any
 ) {
   return (
@@ -26,7 +27,7 @@ function bigButton(
         widthClasses[width]
       }
             cursor-pointer
-            `}
+            ${classNames}`}
       onClick={onClick}
     >
       {text}

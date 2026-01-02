@@ -1,5 +1,5 @@
 import type { NavigateFunction } from "react-router-dom";
-import type { Board, BoardInterface } from "./interfaces";
+import type { BoardInterface } from "./interfaces";
 
 async function checkIfLoggedIn(
   nav: NavigateFunction,
@@ -19,6 +19,14 @@ async function checkIfLoggedIn(
   } catch (err) {
     nav(onLoggedOut, { replace: true });
   }
+}
+
+function handleLogout(navigate: NavigateFunction) {
+  fetch("http://localhost:8080/api/logout", {
+    credentials: "include",
+  }).then(() => {
+    checkIfLoggedIn(navigate, "/app", "/login");
+  });
 }
 
 async function getUserData(setUserData: Function) {
@@ -99,6 +107,7 @@ async function deleteBoard(id: string) {
 
 export {
   checkIfLoggedIn,
+  handleLogout,
   getUserData,
   getBoards,
   getBoard,
