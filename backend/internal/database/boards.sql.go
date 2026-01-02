@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -76,6 +77,45 @@ func (q *Queries) CreateBoard(ctx context.Context, arg CreateBoardParams) (Creat
 		&i.ID,
 		&i.UserID,
 		&i.Title,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createCard = `-- name: CreateCard :one
+INSERT INTO cards (id, column_id, title, description, position)
+VALUES (
+        gen_random_uuid(),
+        $1,
+        $2,
+        $3,
+        $4
+    )
+RETURNING id, column_id, title, description, position, created_at, updated_at
+`
+
+type CreateCardParams struct {
+	ColumnID    uuid.UUID
+	Title       string
+	Description sql.NullString
+	Position    int32
+}
+
+func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (Card, error) {
+	row := q.db.QueryRowContext(ctx, createCard,
+		arg.ColumnID,
+		arg.Title,
+		arg.Description,
+		arg.Position,
+	)
+	var i Card
+	err := row.Scan(
+		&i.ID,
+		&i.ColumnID,
+		&i.Title,
+		&i.Description,
+		&i.Position,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

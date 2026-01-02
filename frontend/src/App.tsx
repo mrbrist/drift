@@ -7,7 +7,6 @@ import {
   getUserData,
   getBoards,
   deleteBoard,
-  getBoard,
 } from "./helpers/api";
 import type { BoardsInterface, UserInterface } from "./helpers/interfaces";
 import { handleCreateBoard } from "./helpers/kanban";
@@ -52,14 +51,14 @@ function App() {
 
       <div className="mt-20 text-white">
         <h1>LOGGED IN</h1>
-        <h2>{userData?.Email}</h2>
+        <h2>{userData?.email}</h2>
         {bButton("green", "md", "New Board", false, () =>
           handleCreateBoard(setBoards)
         )}
         <br />
         {boards?.map((board) => (
-          <h4 key={board.ID}>
-            {board.Title} - <span className="text-slate-600">{board.ID}</span>{" "}
+          <h4 key={board.id}>
+            {board.title} - <span className="text-slate-600">{board.id}</span>{" "}
             <button
               className="ml-3
                         mb-3
@@ -74,10 +73,10 @@ function App() {
                         duration-150"
               onClick={async () => {
                 setBoards((prev) =>
-                  prev ? prev.filter((b) => b.ID !== board.ID) : prev
+                  prev ? prev.filter((b) => b.id !== board.id) : prev
                 );
 
-                const success = await deleteBoard(board.ID);
+                const success = await deleteBoard(board.id);
                 if (!success) {
                   getBoards(setBoards);
                 }
@@ -97,12 +96,11 @@ function App() {
                         hover:border-blue-500
                         transition-colors
                         duration-150"
-              onClick={async () => {
-                const boardData = await getBoard(board.ID);
-                console.log(boardData);
+              onClick={() => {
+                navigate(`/board/${board.id}`);
               }}
             >
-              Get Data
+              Open Board
             </button>
           </h4>
         ))}

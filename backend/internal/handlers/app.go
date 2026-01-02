@@ -3,42 +3,26 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/mrbrist/drift/backend/internal/database"
+	"github.com/mrbrist/drift/backend/internal/models"
 	"github.com/mrbrist/drift/backend/internal/utils"
 )
 
-type Card struct {
-	ID          uuid.UUID `json:"id"`
-	Title       string    `json:"title"`
-	Description *string   `json:"description"`
-	Position    int       `json:"position"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-type Column struct {
-	ID        uuid.UUID `json:"id"`
-	Title     string    `json:"title"`
-	Position  int       `json:"position"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Cards     []Card    `json:"cards"`
-}
-
-type BoardResponse struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    uuid.UUID `json:"user_id"`
-	Title     string    `json:"title"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Columns   []Column  `json:"columns"`
-}
-
 func (cfg *APIConfig) GetUser(w http.ResponseWriter, r *http.Request) {
-	utils.RespondWithJSON(w, 200, r.Context().Value(userContextKey))
+	user := r.Context().Value(userContextKey).(database.User)
+
+	resp := models.User{
+		ID:        user.ID,
+		CreatedAt: user.CreatedAt,
+		Firstname: user.Firstname,
+		Lastname:  user.Lastname,
+		Email:     user.Email,
+		IsAdmin:   user.IsAdmin,
+	}
+
+	utils.RespondWithJSON(w, 200, resp)
 }
 
 func (cfg *APIConfig) GetBoards(w http.ResponseWriter, r *http.Request) {
@@ -50,10 +34,21 @@ func (cfg *APIConfig) GetBoards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(boards) > 0 {
-		utils.RespondWithJSON(w, 200, boards)
+		resp := make([]models.Board, len(boards))
+		for i, b := range boards {
+			resp[i] = models.Board{
+				ID:        b.ID,
+				UserID:    b.UserID,
+				Title:     b.Title,
+				CreatedAt: b.CreatedAt,
+				UpdatedAt: b.UpdatedAt,
+			}
+		}
+
+		utils.RespondWithJSON(w, 200, resp)
 
 	} else {
-		var empty []database.Board
+		var empty []models.Board
 		utils.RespondWithJSON(w, 200, empty)
 	}
 }
@@ -72,13 +67,13 @@ func (cfg *APIConfig) GetBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var columns []Column
+	var columns []models.Column
 	if err := json.Unmarshal(board.Columns.([]byte), &columns); err != nil {
 		utils.RespondWithError(w, 500, "Error constructing board", err)
 		return
 	}
 
-	resp := BoardResponse{
+	resp := models.BoardResponse{
 		ID:        board.ID,
 		UserID:    board.UserID,
 		Title:     board.Title,
@@ -105,6 +100,22 @@ func (cfg *APIConfig) NewBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	board_id, err := uuid.Parse(id)
+	if err != nil {
+		utils.RespondWithError(w, 500, "You need to specify a board id", err)
+		return
+	}
+
+	err = cfg.DB.DeleteBoard(r.Context(), board_id)
+	if err != nil {
+		utils.RespondWithError(w, 500, "Couldn't create board", err)
+		return
+	}
+	w.WriteHeader(200)
+}
+
+func (cfg *APIConfig) CreateCard(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	board_id, err := uuid.Parse(id)
 	if err != nil {

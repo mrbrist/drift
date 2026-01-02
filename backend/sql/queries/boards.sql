@@ -109,3 +109,13 @@ ORDER BY created_at;
 -- name: DeleteBoard :exec
 DELETE FROM boards
 WHERE id = $1;
+-- name: CreateCard :one
+INSERT INTO cards (id, column_id, title, description, position)
+VALUES (
+        gen_random_uuid(),
+        $1,
+        $2,
+        $3,
+        $4
+    )
+RETURNING *;
