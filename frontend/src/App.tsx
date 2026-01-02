@@ -4,6 +4,7 @@ import driftLogo from "./assets/drift-logo.svg";
 import { bButton } from "./modules/bigButton";
 import {
   checkIfLoggedIn,
+  handleLogout,
   getUserData,
   getBoards,
   deleteBoard,
@@ -16,12 +17,8 @@ function App() {
   const [userData, setUserData] = useState<UserInterface | null>(null);
   const [boards, setBoards] = useState<BoardsInterface>([]);
 
-  function handleLogout() {
-    fetch("http://localhost:8080/api/logout", {
-      credentials: "include",
-    }).then(() => {
-      checkIfLoggedIn(navigate, "/app", "/login");
-    });
+  function logout() {
+    handleLogout(navigate);
   }
 
   useEffect(() => {
@@ -57,7 +54,7 @@ function App() {
             handleCreateBoard(setBoards)
           )}
 
-          {bButton("red", "md", "Log Out", false, "", handleLogout)}
+          {bButton("red", "md", "Log Out", false, "", logout)}
         </div>
 
         <div className="pb-5" />

@@ -13,6 +13,10 @@ function Board() {
     navigate("/app");
   }
 
+  function logout() {
+    handleLogout(navigate);
+  }
+
   useEffect(() => {
     checkIfLoggedIn(navigate, `/board/${id}`, "/login");
 
@@ -21,7 +25,6 @@ function Board() {
     const loadBoard = async () => {
       try {
         const data = await getBoard(id);
-        console.log(data);
         setBoard(data);
       } catch (err) {
         console.error("Failed to load board", err);
@@ -38,7 +41,7 @@ function Board() {
         {board ? board.id : "Loading board..."}
         <div className="mt-20">
           {bButton("blue", "md", "Home", false, "mr-2", goHome)}
-          {bButton("red", "md", "Log Out", false, "", handleLogout)}
+          {bButton("red", "md", "Log Out", false, "", logout)}
         </div>
       </div>
     </div>
