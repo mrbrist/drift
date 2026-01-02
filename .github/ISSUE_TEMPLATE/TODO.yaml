@@ -9,7 +9,7 @@ body:
     attributes:
       label: Goal
       description: What should exist when this is done?
-      placeholder: The user can...
+      placeholder: This is where you describe what the task is...
     validations:
       required: true
 
@@ -19,8 +19,8 @@ body:
       label: Tasks
       description: Small steps needed to finish
       placeholder: |
-        - [ ] Step 1
-        - [ ] Step 2
-        - [ ] Step 3
+        - Step 1
+        - Step 2
+        - Step 3
     validations:
-      required: true
+      required: false
