@@ -3,6 +3,7 @@ description: Track and fix a bug completely
 title: "[Bug] "
 labels:
   - bug
+projects: ["mrbrist/8"]
 body:
   - type: textarea
     id: problem
