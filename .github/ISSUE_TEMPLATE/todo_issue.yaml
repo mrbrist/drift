@@ -3,7 +3,7 @@ description: Used for planning purposes
 title: "[TODO] "
 labels:
   - TODO
-projects: "Drift"
+projects: ["mrbrist/8"]
 body:
   - type: textarea
     id: goal
