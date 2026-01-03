@@ -7,7 +7,6 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -77,45 +76,6 @@ func (q *Queries) CreateBoard(ctx context.Context, arg CreateBoardParams) (Creat
 		&i.ID,
 		&i.UserID,
 		&i.Title,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const createCard = `-- name: CreateCard :one
-INSERT INTO cards (id, column_id, title, description, position)
-VALUES (
-        gen_random_uuid(),
-        $1,
-        $2,
-        $3,
-        $4
-    )
-RETURNING id, column_id, title, description, position, created_at, updated_at
-`
-
-type CreateCardParams struct {
-	ColumnID    uuid.UUID
-	Title       string
-	Description sql.NullString
-	Position    int32
-}
-
-func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (Card, error) {
-	row := q.db.QueryRowContext(ctx, createCard,
-		arg.ColumnID,
-		arg.Title,
-		arg.Description,
-		arg.Position,
-	)
-	var i Card
-	err := row.Scan(
-		&i.ID,
-		&i.ColumnID,
-		&i.Title,
-		&i.Description,
-		&i.Position,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -275,47 +235,28 @@ func (q *Queries) IsBoardOwner(ctx context.Context, arg IsBoardOwnerParams) (boo
 	return exists, err
 }
 
-const isCardOwner = `-- name: IsCardOwner :one
-SELECT EXISTS (
-        SELECT 1
-        FROM cards c
-            JOIN board_columns bc ON bc.id = c.column_id
-            JOIN boards b ON b.id = bc.board_id
-        WHERE c.id = $1
-            AND b.user_id = $2
-    )
+const updateBoard = `-- name: UpdateBoard :one
+UPDATE boards
+SET title = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, user_id, title, created_at, updated_at
 `
 
-type IsCardOwnerParams struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
+type UpdateBoardParams struct {
+	ID    uuid.UUID
+	Title string
 }
 
-func (q *Queries) IsCardOwner(ctx context.Context, arg IsCardOwnerParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, isCardOwner, arg.ID, arg.UserID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
-const isColumnOwner = `-- name: IsColumnOwner :one
-SELECT EXISTS (
-        SELECT 1
-        FROM board_columns bc
-            JOIN boards b ON b.id = bc.board_id
-        WHERE bc.id = $1
-            AND b.user_id = $2
-    )
-`
-
-type IsColumnOwnerParams struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
-}
-
-func (q *Queries) IsColumnOwner(ctx context.Context, arg IsColumnOwnerParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, isColumnOwner, arg.ID, arg.UserID)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
+func (q *Queries) UpdateBoard(ctx context.Context, arg UpdateBoardParams) (Board, error) {
+	row := q.db.QueryRowContext(ctx, updateBoard, arg.ID, arg.Title)
+	var i Board
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

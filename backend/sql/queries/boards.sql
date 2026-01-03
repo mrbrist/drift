@@ -1,3 +1,10 @@
+-- name: IsBoardOwner :one
+SELECT EXISTS (
+        SELECT 1
+        FROM boards
+        WHERE id = $1
+            AND user_id = $2
+    );
 -- name: GetBoard :one
 SELECT b.id,
     b.user_id,
@@ -101,30 +108,12 @@ default_columns AS (
 )
 SELECT *
 FROM new_board;
--- name: IsBoardOwner :one
-SELECT EXISTS (
-        SELECT 1
-        FROM boards
-        WHERE id = $1
-            AND user_id = $2
-    );
--- name: IsColumnOwner :one
-SELECT EXISTS (
-        SELECT 1
-        FROM board_columns bc
-            JOIN boards b ON b.id = bc.board_id
-        WHERE bc.id = $1
-            AND b.user_id = $2
-    );
--- name: IsCardOwner :one
-SELECT EXISTS (
-        SELECT 1
-        FROM cards c
-            JOIN board_columns bc ON bc.id = c.column_id
-            JOIN boards b ON b.id = bc.board_id
-        WHERE c.id = $1
-            AND b.user_id = $2
-    );
+-- name: UpdateBoard :one
+UPDATE boards
+SET title = $2,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
 -- name: GetBoardsForUser :many
 SELECT *
 FROM boards
@@ -133,13 +122,3 @@ ORDER BY created_at;
 -- name: DeleteBoard :exec
 DELETE FROM boards
 WHERE id = $1;
--- name: CreateCard :one
-INSERT INTO cards (id, column_id, title, description, position)
-VALUES (
-        gen_random_uuid(),
-        $1,
-        $2,
-        $3,
-        $4
-    )
-RETURNING *;

@@ -36,13 +36,25 @@ func main() {
 
 	// User
 	mux.Handle("GET /api/getUser", cfg.RequireLoggedIn(http.HandlerFunc(cfg.GetUser)))
-
-	// Boards
 	mux.Handle("GET /api/boards", cfg.RequireLoggedIn(http.HandlerFunc(cfg.GetBoards)))
 
+	// Board
 	mux.Handle("POST /api/board", cfg.RequireLoggedIn(cfg.RequireBoardOwner(http.HandlerFunc(cfg.NewBoard))))
 	mux.Handle("DELETE /api/board", cfg.RequireLoggedIn(cfg.RequireBoardOwner(http.HandlerFunc(cfg.DeleteBoard))))
 	mux.Handle("GET /api/board", cfg.RequireLoggedIn(cfg.RequireBoardOwner(http.HandlerFunc(cfg.GetBoard))))
+	mux.Handle("PATCH /api/board", cfg.RequireLoggedIn(cfg.RequireBoardOwner(http.HandlerFunc(cfg.UpdateBoard))))
+
+	// Column
+	mux.Handle("POST /api/column", cfg.RequireLoggedIn(cfg.RequireColumnOwner(http.HandlerFunc(cfg.NewColumn))))
+	mux.Handle("DELETE /api/column", cfg.RequireLoggedIn(cfg.RequireColumnOwner(http.HandlerFunc(cfg.DeleteColumn))))
+	mux.Handle("GET /api/column", cfg.RequireLoggedIn(cfg.RequireColumnOwner(http.HandlerFunc(cfg.GetColumn))))
+	mux.Handle("PATCH /api/column", cfg.RequireLoggedIn(cfg.RequireColumnOwner(http.HandlerFunc(cfg.UpdateColumn))))
+
+	// Card
+	mux.Handle("POST /api/card", cfg.RequireLoggedIn(cfg.RequireCardOwner(http.HandlerFunc(cfg.NewCard))))
+	mux.Handle("DELETE /api/card", cfg.RequireLoggedIn(cfg.RequireCardOwner(http.HandlerFunc(cfg.DeleteCard))))
+	mux.Handle("GET /api/card", cfg.RequireLoggedIn(cfg.RequireCardOwner(http.HandlerFunc(cfg.GetCard))))
+	mux.Handle("PATCH /api/card", cfg.RequireLoggedIn(cfg.RequireCardOwner(http.HandlerFunc(cfg.UpdateCard))))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,

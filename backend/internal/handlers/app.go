@@ -53,6 +53,9 @@ func (cfg *APIConfig) GetBoards(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
+BOARD HANDLERS
+*/
 func (cfg *APIConfig) GetBoard(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	board_id, err := uuid.Parse(id)
@@ -108,6 +111,26 @@ func (cfg *APIConfig) NewBoard(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, 200, resp)
 }
 
+func (cfg *APIConfig) UpdateBoard(w http.ResponseWriter, r *http.Request) {
+	board, err := cfg.DB.UpdateBoard(r.Context(), database.UpdateBoardParams{
+		Title: "New Board",
+	})
+	if err != nil {
+		utils.RespondWithError(w, 500, "Couldn't create board", err)
+		return
+	}
+
+	resp := models.Board{
+		ID:        board.ID,
+		UserID:    board.UserID,
+		Title:     board.Title,
+		CreatedAt: board.CreatedAt,
+		UpdatedAt: board.UpdatedAt,
+	}
+
+	utils.RespondWithJSON(w, 200, resp)
+}
+
 func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	board_id, err := uuid.Parse(id)
@@ -124,18 +147,40 @@ func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-func (cfg *APIConfig) CreateCard(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	board_id, err := uuid.Parse(id)
-	if err != nil {
-		utils.RespondWithError(w, 500, "You need to specify a board id", err)
-		return
-	}
+/*
+COLUMN HANDLERS
+*/
+func (cfg *APIConfig) GetColumn(w http.ResponseWriter, r *http.Request) {
 
-	err = cfg.DB.DeleteBoard(r.Context(), board_id)
-	if err != nil {
-		utils.RespondWithError(w, 500, "Couldn't create board", err)
-		return
-	}
-	w.WriteHeader(200)
+}
+
+func (cfg *APIConfig) NewColumn(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (cfg *APIConfig) UpdateColumn(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (cfg *APIConfig) DeleteColumn(w http.ResponseWriter, r *http.Request) {
+
+}
+
+/*
+CARD HANDLERS
+*/
+func (cfg *APIConfig) GetCard(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (cfg *APIConfig) NewCard(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (cfg *APIConfig) UpdateCard(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (cfg *APIConfig) DeleteCard(w http.ResponseWriter, r *http.Request) {
+
 }

@@ -166,3 +166,69 @@ func (cfg *APIConfig) RequireBoardOwner(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func (cfg *APIConfig) RequireColumnOwner(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := UserIDFromContext(r.Context())
+		if !ok {
+			utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized", nil)
+			return
+		}
+
+		id := r.URL.Query().Get("id")
+		columnID, err := uuid.Parse(id)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid column id", err)
+			return
+		}
+
+		isOwner, err := cfg.DB.IsBoardOwner(r.Context(), database.IsBoardOwnerParams{
+			ID:     columnID,
+			UserID: userID,
+		})
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "Authorization failed", err)
+			return
+		}
+
+		if !isOwner {
+			utils.RespondWithError(w, http.StatusForbidden, "You do not own this column", nil)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (cfg *APIConfig) RequireCardOwner(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := UserIDFromContext(r.Context())
+		if !ok {
+			utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized", nil)
+			return
+		}
+
+		id := r.URL.Query().Get("id")
+		cardID, err := uuid.Parse(id)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid card id", err)
+			return
+		}
+
+		isOwner, err := cfg.DB.IsCardOwner(r.Context(), database.IsCardOwnerParams{
+			ID:     cardID,
+			UserID: userID,
+		})
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "Authorization failed", err)
+			return
+		}
+
+		if !isOwner {
+			utils.RespondWithError(w, http.StatusForbidden, "You do not own this card", nil)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
