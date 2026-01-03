@@ -101,6 +101,30 @@ default_columns AS (
 )
 SELECT *
 FROM new_board;
+-- name: IsBoardOwner :one
+SELECT EXISTS (
+        SELECT 1
+        FROM boards
+        WHERE id = $1
+            AND user_id = $2
+    );
+-- name: IsColumnOwner :one
+SELECT EXISTS (
+        SELECT 1
+        FROM board_columns bc
+            JOIN boards b ON b.id = bc.board_id
+        WHERE bc.id = $1
+            AND b.user_id = $2
+    );
+-- name: IsCardOwner :one
+SELECT EXISTS (
+        SELECT 1
+        FROM cards c
+            JOIN board_columns bc ON bc.id = c.column_id
+            JOIN boards b ON b.id = bc.board_id
+        WHERE c.id = $1
+            AND b.user_id = $2
+    );
 -- name: GetBoardsForUser :many
 SELECT *
 FROM boards

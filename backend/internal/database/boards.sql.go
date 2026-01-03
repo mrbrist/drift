@@ -253,3 +253,69 @@ func (q *Queries) GetBoardsForUser(ctx context.Context, userID uuid.UUID) ([]Boa
 	}
 	return items, nil
 }
+
+const isBoardOwner = `-- name: IsBoardOwner :one
+SELECT EXISTS (
+        SELECT 1
+        FROM boards
+        WHERE id = $1
+            AND user_id = $2
+    )
+`
+
+type IsBoardOwnerParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) IsBoardOwner(ctx context.Context, arg IsBoardOwnerParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isBoardOwner, arg.ID, arg.UserID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isCardOwner = `-- name: IsCardOwner :one
+SELECT EXISTS (
+        SELECT 1
+        FROM cards c
+            JOIN board_columns bc ON bc.id = c.column_id
+            JOIN boards b ON b.id = bc.board_id
+        WHERE c.id = $1
+            AND b.user_id = $2
+    )
+`
+
+type IsCardOwnerParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) IsCardOwner(ctx context.Context, arg IsCardOwnerParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isCardOwner, arg.ID, arg.UserID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isColumnOwner = `-- name: IsColumnOwner :one
+SELECT EXISTS (
+        SELECT 1
+        FROM board_columns bc
+            JOIN boards b ON b.id = bc.board_id
+        WHERE bc.id = $1
+            AND b.user_id = $2
+    )
+`
+
+type IsColumnOwnerParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) IsColumnOwner(ctx context.Context, arg IsColumnOwnerParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isColumnOwner, arg.ID, arg.UserID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}

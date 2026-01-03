@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/mrbrist/drift/backend/internal/database"
 	"github.com/mrbrist/drift/backend/internal/utils"
 )
@@ -12,6 +13,11 @@ import (
 type contextKey string
 
 const userContextKey contextKey = "user"
+
+func UserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
+	user, ok := ctx.Value(userContextKey).(database.User)
+	return user.ID, ok
+}
 
 func (cfg *APIConfig) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -128,7 +134,35 @@ func (cfg *APIConfig) RequireLoggedIn(next http.Handler) http.Handler {
 	})
 }
 
-func (cfg *APIConfig) RequireAllowed(next http.Handler) http.Handler {
-	// Ensure they are actually allowed to access the resource
-	return next
+func (cfg *APIConfig) RequireBoardOwner(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, ok := UserIDFromContext(r.Context())
+		if !ok {
+			utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized", nil)
+			return
+		}
+
+		id := r.URL.Query().Get("id")
+		boardID, err := uuid.Parse(id)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid board id", err)
+			return
+		}
+
+		isOwner, err := cfg.DB.IsBoardOwner(r.Context(), database.IsBoardOwnerParams{
+			ID:     boardID,
+			UserID: userID,
+		})
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "Authorization failed", err)
+			return
+		}
+
+		if !isOwner {
+			utils.RespondWithError(w, http.StatusForbidden, "You do not own this board", nil)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

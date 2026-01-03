@@ -40,9 +40,9 @@ func main() {
 	// Boards
 	mux.Handle("GET /api/boards", cfg.RequireLoggedIn(http.HandlerFunc(cfg.GetBoards)))
 
-	mux.Handle("POST /api/board", cfg.RequireLoggedIn(cfg.RequireAllowed(http.HandlerFunc(cfg.NewBoard))))
-	mux.Handle("DELETE /api/board", cfg.RequireLoggedIn(cfg.RequireAllowed(http.HandlerFunc(cfg.DeleteBoard))))
-	mux.Handle("GET /api/board", cfg.RequireLoggedIn(cfg.RequireAllowed(http.HandlerFunc(cfg.GetBoard))))
+	mux.Handle("POST /api/board", cfg.RequireLoggedIn(cfg.RequireBoardOwner(http.HandlerFunc(cfg.NewBoard))))
+	mux.Handle("DELETE /api/board", cfg.RequireLoggedIn(cfg.RequireBoardOwner(http.HandlerFunc(cfg.DeleteBoard))))
+	mux.Handle("GET /api/board", cfg.RequireLoggedIn(cfg.RequireBoardOwner(http.HandlerFunc(cfg.GetBoard))))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,
