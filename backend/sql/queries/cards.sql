@@ -18,5 +18,17 @@ VALUES (
     )
 RETURNING *;
 -- name: GetCard :one
+SELECT *
+FROM cards
+where id = $1;
 -- name: UpdateCard :one
+UPDATE cards
+SET title = $2,
+    position = $3,
+    column_id = $4,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
 -- name: DeleteCard :exec
+DELETE FROM cards
+WHERE id = $1;

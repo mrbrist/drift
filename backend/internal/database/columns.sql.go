@@ -11,6 +11,76 @@ import (
 	"github.com/google/uuid"
 )
 
+const createColumn = `-- name: CreateColumn :one
+INSERT INTO board_columns (
+        id,
+        board_id,
+        title,
+        position,
+        created_at,
+        updated_at
+    )
+VALUES (
+        gen_random_uuid(),
+        $1,
+        $2,
+        $3,
+        NOW(),
+        NOW()
+    )
+RETURNING id, board_id, title, position, created_at, updated_at
+`
+
+type CreateColumnParams struct {
+	BoardID  uuid.UUID
+	Title    string
+	Position int32
+}
+
+func (q *Queries) CreateColumn(ctx context.Context, arg CreateColumnParams) (BoardColumn, error) {
+	row := q.db.QueryRowContext(ctx, createColumn, arg.BoardID, arg.Title, arg.Position)
+	var i BoardColumn
+	err := row.Scan(
+		&i.ID,
+		&i.BoardID,
+		&i.Title,
+		&i.Position,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteColumn = `-- name: DeleteColumn :exec
+DELETE FROM board_columns
+WHERE id = $1
+`
+
+func (q *Queries) DeleteColumn(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteColumn, id)
+	return err
+}
+
+const getColumn = `-- name: GetColumn :one
+SELECT id, board_id, title, position, created_at, updated_at
+FROM board_columns
+where id = $1
+`
+
+func (q *Queries) GetColumn(ctx context.Context, id uuid.UUID) (BoardColumn, error) {
+	row := q.db.QueryRowContext(ctx, getColumn, id)
+	var i BoardColumn
+	err := row.Scan(
+		&i.ID,
+		&i.BoardID,
+		&i.Title,
+		&i.Position,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const isColumnOwner = `-- name: IsColumnOwner :one
 SELECT EXISTS (
         SELECT 1
@@ -31,4 +101,33 @@ func (q *Queries) IsColumnOwner(ctx context.Context, arg IsColumnOwnerParams) (b
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const updateColumn = `-- name: UpdateColumn :one
+UPDATE board_columns
+SET title = $2,
+    position = $3,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, board_id, title, position, created_at, updated_at
+`
+
+type UpdateColumnParams struct {
+	ID       uuid.UUID
+	Title    string
+	Position int32
+}
+
+func (q *Queries) UpdateColumn(ctx context.Context, arg UpdateColumnParams) (BoardColumn, error) {
+	row := q.db.QueryRowContext(ctx, updateColumn, arg.ID, arg.Title, arg.Position)
+	var i BoardColumn
+	err := row.Scan(
+		&i.ID,
+		&i.BoardID,
+		&i.Title,
+		&i.Position,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

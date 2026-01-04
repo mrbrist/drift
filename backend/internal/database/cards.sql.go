@@ -51,6 +51,37 @@ func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (Card, e
 	return i, err
 }
 
+const deleteCard = `-- name: DeleteCard :exec
+DELETE FROM cards
+WHERE id = $1
+`
+
+func (q *Queries) DeleteCard(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteCard, id)
+	return err
+}
+
+const getCard = `-- name: GetCard :one
+SELECT id, column_id, title, description, position, created_at, updated_at
+FROM cards
+where id = $1
+`
+
+func (q *Queries) GetCard(ctx context.Context, id uuid.UUID) (Card, error) {
+	row := q.db.QueryRowContext(ctx, getCard, id)
+	var i Card
+	err := row.Scan(
+		&i.ID,
+		&i.ColumnID,
+		&i.Title,
+		&i.Description,
+		&i.Position,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const isCardOwner = `-- name: IsCardOwner :one
 SELECT EXISTS (
         SELECT 1
@@ -72,4 +103,41 @@ func (q *Queries) IsCardOwner(ctx context.Context, arg IsCardOwnerParams) (bool,
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const updateCard = `-- name: UpdateCard :one
+UPDATE cards
+SET title = $2,
+    position = $3,
+    column_id = $4,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, column_id, title, description, position, created_at, updated_at
+`
+
+type UpdateCardParams struct {
+	ID       uuid.UUID
+	Title    string
+	Position int32
+	ColumnID uuid.UUID
+}
+
+func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) (Card, error) {
+	row := q.db.QueryRowContext(ctx, updateCard,
+		arg.ID,
+		arg.Title,
+		arg.Position,
+		arg.ColumnID,
+	)
+	var i Card
+	err := row.Scan(
+		&i.ID,
+		&i.ColumnID,
+		&i.Title,
+		&i.Description,
+		&i.Position,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
