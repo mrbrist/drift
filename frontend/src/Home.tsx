@@ -31,7 +31,7 @@ function Home() {
       </div>
 
       <div className="mt-20">
-        {bButton("blue", "md", "Sign Up", true, handleRegisterClick)}
+        {bButton("blue", "md", "Sign Up", true, "", handleRegisterClick)}
       </div>
     </div>
   );
