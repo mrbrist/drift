@@ -141,7 +141,7 @@ func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 
 	err = cfg.DB.DeleteBoard(r.Context(), board_id)
 	if err != nil {
-		utils.RespondWithError(w, 500, "Couldn't create board", err)
+		utils.RespondWithError(w, 500, "Couldn't delete board", err)
 		return
 	}
 	w.WriteHeader(200)
@@ -151,19 +151,80 @@ func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 COLUMN HANDLERS
 */
 func (cfg *APIConfig) GetColumn(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	col_id, err := uuid.Parse(id)
+	if err != nil {
+		utils.RespondWithError(w, 500, "You need to specify a board id", err)
+		return
+	}
 
+	col, err := cfg.DB.GetColumn(r.Context(), col_id)
+	if err != nil {
+		utils.RespondWithError(w, 404, "Could not get column", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, 200, col)
 }
 
 func (cfg *APIConfig) NewColumn(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	params := models.NewColumnParams{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
 
+	col, err := cfg.DB.CreateColumn(r.Context(), database.CreateColumnParams{
+		BoardID:  params.BoardID,
+		Title:    params.Title,
+		Position: params.Position,
+	})
+	if err != nil {
+		utils.RespondWithError(w, 500, "Could not create column", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, 200, col)
 }
 
 func (cfg *APIConfig) UpdateColumn(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	params := models.UpdateColumnParams{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
 
+	col, err := cfg.DB.UpdateColumn(r.Context(), database.UpdateColumnParams{
+		ID:       params.ID,
+		Title:    params.Title,
+		Position: params.Position,
+	})
+	if err != nil {
+		utils.RespondWithError(w, 500, "Could not update column", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, 200, col)
 }
 
 func (cfg *APIConfig) DeleteColumn(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	col_id, err := uuid.Parse(id)
+	if err != nil {
+		utils.RespondWithError(w, 500, "You need to specify a column id", err)
+		return
+	}
 
+	err = cfg.DB.DeleteColumn(r.Context(), col_id)
+	if err != nil {
+		utils.RespondWithError(w, 500, "Couldn't delete column", err)
+		return
+	}
+	w.WriteHeader(200)
 }
 
 /*

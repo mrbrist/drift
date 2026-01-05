@@ -49,3 +49,15 @@ type User struct {
 	Email     string    `json:"email"`
 	IsAdmin   bool      `json:"id_admin"`
 }
+
+type NewColumnParams struct {
+	BoardID  uuid.UUID `json:"board_id"`
+	Title    string    `json:"title"`
+	Position int32     `json:"position"`
+}
+
+type UpdateColumnParams struct {
+	ID       uuid.UUID `json:"id"`
+	Title    string    `json:"title"`
+	Position int32     `json:"position"`
+}
