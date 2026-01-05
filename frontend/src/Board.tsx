@@ -39,6 +39,16 @@ function Board() {
       <div className="mt-20 text-white">
         <br />
         {board ? board.id : "Loading board..."}
+        {board?.columns.map((c) => (
+          <div>
+            <h2 key={c.id}>
+              {c.id} - {c.title}
+            </h2>
+            {c.cards.map((card) => (
+              <span key={card.id}>{card.title}</span>
+            ))}
+          </div>
+        ))}
         <div className="mt-20">
           {bButton("blue", "md", "Home", false, "mr-2", goHome)}
           {bButton("red", "md", "Log Out", false, "", logout)}

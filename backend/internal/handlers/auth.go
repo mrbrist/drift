@@ -13,6 +13,7 @@ import (
 type contextKey string
 
 const userContextKey contextKey = "user"
+const paramsContextKey contextKey = "params"
 
 func UserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
 	user, ok := ctx.Value(userContextKey).(database.User)
@@ -134,7 +135,7 @@ func (cfg *APIConfig) RequireLoggedIn(next http.Handler) http.Handler {
 	})
 }
 
-func (cfg *APIConfig) RequireBoardOwner(next http.Handler) http.Handler {
+func (cfg *APIConfig) RequireBoardAccess(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, ok := UserIDFromContext(r.Context())
 		if !ok {
@@ -142,15 +143,15 @@ func (cfg *APIConfig) RequireBoardOwner(next http.Handler) http.Handler {
 			return
 		}
 
-		id := r.URL.Query().Get("id")
-		boardID, err := uuid.Parse(id)
+		id := r.URL.Query().Get("board_id")
+		board_id, err := uuid.Parse(id)
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid board id", err)
+			utils.RespondWithError(w, 500, "You need to specify a board id", err)
 			return
 		}
 
 		isOwner, err := cfg.DB.IsBoardOwner(r.Context(), database.IsBoardOwnerParams{
-			ID:     boardID,
+			ID:     board_id,
 			UserID: userID,
 		})
 		if err != nil {
@@ -160,72 +161,6 @@ func (cfg *APIConfig) RequireBoardOwner(next http.Handler) http.Handler {
 
 		if !isOwner {
 			utils.RespondWithError(w, http.StatusForbidden, "You do not own this board", nil)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (cfg *APIConfig) RequireColumnOwner(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID, ok := UserIDFromContext(r.Context())
-		if !ok {
-			utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized", nil)
-			return
-		}
-
-		id := r.URL.Query().Get("id")
-		columnID, err := uuid.Parse(id)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid column id", err)
-			return
-		}
-
-		isOwner, err := cfg.DB.IsBoardOwner(r.Context(), database.IsBoardOwnerParams{
-			ID:     columnID,
-			UserID: userID,
-		})
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "Authorization failed", err)
-			return
-		}
-
-		if !isOwner {
-			utils.RespondWithError(w, http.StatusForbidden, "You do not own this column", nil)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (cfg *APIConfig) RequireCardOwner(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID, ok := UserIDFromContext(r.Context())
-		if !ok {
-			utils.RespondWithError(w, http.StatusUnauthorized, "Unauthorized", nil)
-			return
-		}
-
-		id := r.URL.Query().Get("id")
-		cardID, err := uuid.Parse(id)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid card id", err)
-			return
-		}
-
-		isOwner, err := cfg.DB.IsCardOwner(r.Context(), database.IsCardOwnerParams{
-			ID:     cardID,
-			UserID: userID,
-		})
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, "Authorization failed", err)
-			return
-		}
-
-		if !isOwner {
-			utils.RespondWithError(w, http.StatusForbidden, "You do not own this card", nil)
 			return
 		}
 

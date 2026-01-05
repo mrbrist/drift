@@ -62,7 +62,7 @@ async function getBoards(setBoards: Function) {
 
 async function getBoard(id: string): Promise<BoardInterface | null> {
   try {
-    const res = await fetch(`http://localhost:8080/api/board?id=${id}`, {
+    const res = await fetch(`http://localhost:8080/api/board?board_id=${id}`, {
       credentials: "include",
       method: "get",
     });
@@ -78,7 +78,7 @@ async function getBoard(id: string): Promise<BoardInterface | null> {
 
 async function createBoard() {
   try {
-    const res = await fetch("http://localhost:8080/api/board", {
+    const res = await fetch(`http://localhost:8080/api/board`, {
       credentials: "include",
       method: "post",
     });
@@ -93,7 +93,7 @@ async function createBoard() {
 
 async function deleteBoard(id: string) {
   try {
-    const res = await fetch(`http://localhost:8080/api/board?id=${id}`, {
+    const res = await fetch(`http://localhost:8080/api/board?board_id=${id}`, {
       credentials: "include",
       method: "delete",
     });

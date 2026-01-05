@@ -49,7 +49,15 @@ type User struct {
 	Email     string    `json:"email"`
 	IsAdmin   bool      `json:"id_admin"`
 }
-
+type BoardParams struct {
+	BoardID uuid.UUID `json:"board_id"`
+}
+type ColumnParams struct {
+	ColumnID uuid.UUID `json:"column_id"`
+}
+type CardParams struct {
+	CardID uuid.UUID `json:"card_id"`
+}
 type NewColumnParams struct {
 	BoardID  uuid.UUID `json:"board_id"`
 	Title    string    `json:"title"`
