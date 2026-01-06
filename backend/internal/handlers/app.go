@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
@@ -168,6 +169,7 @@ func (cfg *APIConfig) GetColumn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *APIConfig) NewColumn(w http.ResponseWriter, r *http.Request) {
+	board_id := r.Context().Value(boardIdContextKey).(uuid.UUID)
 	decoder := json.NewDecoder(r.Body)
 	params := models.NewColumnParams{}
 	err := decoder.Decode(&params)
@@ -177,7 +179,7 @@ func (cfg *APIConfig) NewColumn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	col, err := cfg.DB.CreateColumn(r.Context(), database.CreateColumnParams{
-		BoardID:  params.BoardID,
+		BoardID:  board_id,
 		Title:    params.Title,
 		Position: params.Position,
 	})
@@ -231,17 +233,92 @@ func (cfg *APIConfig) DeleteColumn(w http.ResponseWriter, r *http.Request) {
 CARD HANDLERS
 */
 func (cfg *APIConfig) GetCard(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	card_id, err := uuid.Parse(id)
+	if err != nil {
+		utils.RespondWithError(w, 500, "You need to specify a card id", err)
+		return
+	}
 
+	card, err := cfg.DB.GetColumn(r.Context(), card_id)
+	if err != nil {
+		utils.RespondWithError(w, 404, "Could not get card", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, 200, card)
 }
 
 func (cfg *APIConfig) NewCard(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	params := models.NewCardParams{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
 
+	desc := sql.NullString{
+		String: params.Description,
+		Valid:  true,
+	}
+
+	card, err := cfg.DB.CreateCard(r.Context(), database.CreateCardParams{
+		ColumnID:    params.ColumnID,
+		Title:       params.Title,
+		Description: desc,
+		Position:    params.Position,
+	})
+	if err != nil {
+		utils.RespondWithError(w, 500, "Could not create card", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, 200, card)
 }
 
 func (cfg *APIConfig) UpdateCard(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	params := models.UpdateCardParams{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
 
+	desc := sql.NullString{
+		String: params.Description,
+		Valid:  true,
+	}
+
+	card, err := cfg.DB.UpdateCard(r.Context(), database.UpdateCardParams{
+		ID:          params.ID,
+		ColumnID:    params.ColumnID,
+		Title:       params.Title,
+		Description: desc,
+		Position:    params.Position,
+	})
+	if err != nil {
+		utils.RespondWithError(w, 500, "Could not update card", err)
+		return
+	}
+
+	utils.RespondWithJSON(w, 200, card)
 }
 
 func (cfg *APIConfig) DeleteCard(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	cardID, err := uuid.Parse(id)
+	if err != nil {
+		utils.RespondWithError(w, 500, "You need to specify a card id", err)
+		return
+	}
 
+	err = cfg.DB.DeleteCard(r.Context(), cardID)
+	if err != nil {
+		utils.RespondWithError(w, 500, "Couldn't delete card", err)
+		return
+	}
+
+	w.WriteHeader(200)
 }

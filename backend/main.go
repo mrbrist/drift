@@ -41,6 +41,7 @@ func main() {
 	// Board
 	mux.Handle("POST /api/board", cfg.RequireLoggedIn(http.HandlerFunc(cfg.NewBoard)))
 
+	// ALL OF THESE ENDPOINTS NEED A board_id url param to be sent along with the request
 	mux.Handle("DELETE /api/board", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.DeleteBoard))))
 	mux.Handle("GET /api/board", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.GetBoard))))
 	mux.Handle("PATCH /api/board", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.UpdateBoard))))

@@ -24,8 +24,9 @@ where id = $1;
 -- name: UpdateCard :one
 UPDATE cards
 SET title = $2,
-    position = $3,
-    column_id = $4,
+    description = $3,
+    position = $4,
+    column_id = $5,
     updated_at = NOW()
 WHERE id = $1
 RETURNING *;

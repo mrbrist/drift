@@ -13,7 +13,7 @@ import (
 type contextKey string
 
 const userContextKey contextKey = "user"
-const paramsContextKey contextKey = "params"
+const boardIdContextKey contextKey = "board_id"
 
 func UserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
 	user, ok := ctx.Value(userContextKey).(database.User)
@@ -164,6 +164,7 @@ func (cfg *APIConfig) RequireBoardAccess(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), boardIdContextKey, board_id)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

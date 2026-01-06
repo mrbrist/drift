@@ -59,13 +59,27 @@ type CardParams struct {
 	CardID uuid.UUID `json:"card_id"`
 }
 type NewColumnParams struct {
-	BoardID  uuid.UUID `json:"board_id"`
-	Title    string    `json:"title"`
-	Position int32     `json:"position"`
+	Title    string `json:"title"`
+	Position int32  `json:"position"`
 }
 
 type UpdateColumnParams struct {
 	ID       uuid.UUID `json:"id"`
 	Title    string    `json:"title"`
 	Position int32     `json:"position"`
+}
+
+type NewCardParams struct {
+	ColumnID    uuid.UUID `json:"column_id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Position    int32     `json:"position"`
+}
+
+type UpdateCardParams struct {
+	ID          uuid.UUID `json:"id"`
+	ColumnID    uuid.UUID `json:"column_id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Position    int32     `json:"position"`
 }

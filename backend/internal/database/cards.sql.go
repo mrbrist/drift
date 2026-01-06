@@ -108,24 +108,27 @@ func (q *Queries) IsCardOwner(ctx context.Context, arg IsCardOwnerParams) (bool,
 const updateCard = `-- name: UpdateCard :one
 UPDATE cards
 SET title = $2,
-    position = $3,
-    column_id = $4,
+    description = $3,
+    position = $4,
+    column_id = $5,
     updated_at = NOW()
 WHERE id = $1
 RETURNING id, column_id, title, description, position, created_at, updated_at
 `
 
 type UpdateCardParams struct {
-	ID       uuid.UUID
-	Title    string
-	Position int32
-	ColumnID uuid.UUID
+	ID          uuid.UUID
+	Title       string
+	Description sql.NullString
+	Position    int32
+	ColumnID    uuid.UUID
 }
 
 func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) (Card, error) {
 	row := q.db.QueryRowContext(ctx, updateCard,
 		arg.ID,
 		arg.Title,
+		arg.Description,
 		arg.Position,
 		arg.ColumnID,
 	)
