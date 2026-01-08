@@ -123,6 +123,23 @@ async function createCard(board_id: string, col_id: string) {
   }
 }
 
+async function deleteCard(board_id: string, card_id: string) {
+  try {
+    const res = await fetch(
+      `http://localhost:8080/api/card?board_id=${board_id}&id=${card_id}`,
+      {
+        credentials: "include",
+        method: "delete",
+      }
+    );
+
+    return res.ok;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
 export {
   checkIfLoggedIn,
   handleLogout,
@@ -132,4 +149,5 @@ export {
   createBoard,
   deleteBoard,
   createCard,
+  deleteCard,
 };

@@ -4,6 +4,7 @@ import { bButton } from "./modules/bigButton";
 import {
   checkIfLoggedIn,
   createCard,
+  deleteCard,
   getBoard,
   handleLogout,
 } from "./helpers/api";
@@ -45,8 +46,8 @@ function Board() {
         <br />
         {board ? board.id : "Loading board..."}
         {board?.columns.map((c) => (
-          <div>
-            <h2 key={c.id}>
+          <div key={c.id}>
+            <h2>
               {c.id} - {c.title}
             </h2>
             <button
@@ -69,9 +70,30 @@ function Board() {
               New Card
             </button>
             {c.cards.map((card) => (
-              <h3 key={card.id} className="text-amber-100">
-                {card.id} - {card.title}
-              </h3>
+              <div key={card.id}>
+                <span className="text-amber-100">
+                  {card.id} - {card.title}
+                </span>
+                <button
+                  className="ml-3
+                        mb-3
+                        px-3 py-1
+                        text-sm font-medium
+                        text-red-500
+                        border border-red-500/30
+                        rounded-md
+                        hover:bg-red-500 hover:text-white
+                        hover:border-red-500
+                        transition-colors
+                        duration-150"
+                  onClick={async () => {
+                    const success = await deleteCard(board.id, card.id);
+                    console.log(success);
+                  }}
+                >
+                  Delete Card
+                </button>
+              </div>
             ))}
             <br />
           </div>
