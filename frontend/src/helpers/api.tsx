@@ -126,10 +126,11 @@ async function createCard(board_id: string, col_id: string) {
 async function deleteCard(board_id: string, card_id: string) {
   try {
     const res = await fetch(
-      `http://localhost:8080/api/card?board_id=${board_id}&id=${card_id}`,
+      `http://localhost:8080/api/card?board_id=${board_id}`,
       {
         credentials: "include",
         method: "delete",
+        body: JSON.stringify({ card_id: card_id }),
       }
     );
 
