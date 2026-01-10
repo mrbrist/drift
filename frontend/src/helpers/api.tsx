@@ -153,7 +153,7 @@ async function updateCard(board_id: string, card_id: string, col_id: string) {
           column_id: col_id,
           title: "Hello",
           description: "Hello body",
-          position: 5,
+          position: 0,
         }),
       }
     );
