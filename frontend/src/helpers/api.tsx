@@ -112,7 +112,7 @@ async function createCard(board_id: string, col_id: string) {
       {
         credentials: "include",
         method: "post",
-        body: JSON.stringify({ column_id: col_id, title: "New Card" }),
+        body: JSON.stringify({ id: col_id, title: "New Card" }),
       }
     );
 
@@ -130,7 +130,31 @@ async function deleteCard(board_id: string, card_id: string) {
       {
         credentials: "include",
         method: "delete",
-        body: JSON.stringify({ card_id: card_id }),
+        body: JSON.stringify({ id: card_id }),
+      }
+    );
+
+    return res.ok;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+async function updateCard(board_id: string, card_id: string, col_id: string) {
+  try {
+    const res = await fetch(
+      `http://localhost:8080/api/card?board_id=${board_id}`,
+      {
+        credentials: "include",
+        method: "put",
+        body: JSON.stringify({
+          id: card_id,
+          column_id: col_id,
+          title: "Hello",
+          description: "Hello body",
+          position: 5,
+        }),
       }
     );
 
@@ -151,4 +175,5 @@ export {
   deleteBoard,
   createCard,
   deleteCard,
+  updateCard,
 };

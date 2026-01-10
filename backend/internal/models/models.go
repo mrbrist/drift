@@ -50,16 +50,16 @@ type User struct {
 	IsAdmin   bool      `json:"id_admin"`
 }
 type BoardParams struct {
-	BoardID uuid.UUID `json:"board_id"`
+	BoardID uuid.UUID `json:"id"`
 }
 type UpdateBoardParams struct {
 	Title string `json:"title"`
 }
 type ColumnParams struct {
-	ColumnID uuid.UUID `json:"column_id"`
+	ColumnID uuid.UUID `json:"id"`
 }
 type CardParams struct {
-	CardID uuid.UUID `json:"card_id"`
+	CardID uuid.UUID `json:"id"`
 }
 type NewColumnParams struct {
 	Title    string `json:"title"`
@@ -73,7 +73,7 @@ type UpdateColumnParams struct {
 }
 
 type NewCardParams struct {
-	ColumnID    uuid.UUID `json:"column_id"`
+	ColumnID    uuid.UUID `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Position    int32     `json:"position"`

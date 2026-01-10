@@ -12,8 +12,7 @@ CREATE TABLE board_columns (
     title TEXT NOT NULL,
     position INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT board_columns_unique_position UNIQUE (board_id, position)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE TABLE cards (
     id UUID PRIMARY KEY,
@@ -22,8 +21,7 @@ CREATE TABLE cards (
     description TEXT,
     position INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT cards_unique_position UNIQUE (column_id, position)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 -- +goose Down
 DROP TABLE IF EXISTS cards;

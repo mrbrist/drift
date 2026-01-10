@@ -7,6 +7,7 @@ import {
   deleteCard,
   getBoard,
   handleLogout,
+  updateCard,
 } from "./helpers/api";
 import type { BoardInterface } from "./helpers/interfaces";
 
@@ -55,11 +56,11 @@ function Board() {
                         mb-3
                         px-3 py-1
                         text-sm font-medium
-                        text-blue-500
-                        border border-blue-500/30
+                        text-green-500
+                        border border-green-500/30
                         rounded-md
-                        hover:bg-blue-500 hover:text-white
-                        hover:border-blue-500
+                        hover:bg-green-500 hover:text-white
+                        hover:border-green-500
                         transition-colors
                         duration-150"
               onClick={async () => {
@@ -72,8 +73,27 @@ function Board() {
             {c.cards.map((card) => (
               <div key={card.id}>
                 <span className="text-amber-100">
-                  {card.id} - {card.title}
+                  {card.id} #{card.position} - {card.title}
                 </span>
+                <button
+                  className="ml-3
+                        mb-3
+                        px-3 py-1
+                        text-sm font-medium
+                        text-blue-500
+                        border border-blue-500/30
+                        rounded-md
+                        hover:bg-blue-500 hover:text-white
+                        hover:border-blue-500
+                        transition-colors
+                        duration-150"
+                  onClick={async () => {
+                    const success = await updateCard(board.id, card.id, c.id);
+                    console.log(success);
+                  }}
+                >
+                  Update Card
+                </button>
                 <button
                   className="ml-3
                         mb-3

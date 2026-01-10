@@ -44,19 +44,19 @@ func main() {
 	// ALL OF THESE ENDPOINTS NEED A board_id url param to be sent along with the request
 	mux.Handle("DELETE /api/board", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.DeleteBoard))))
 	mux.Handle("GET /api/board", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.GetBoard))))
-	mux.Handle("PATCH /api/board", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.UpdateBoard))))
+	mux.Handle("PUT /api/board", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.UpdateBoard))))
 
 	// Column
 	mux.Handle("POST /api/column", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.NewColumn))))
 	mux.Handle("DELETE /api/column", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.DeleteColumn))))
 	mux.Handle("GET /api/column", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.GetColumn))))
-	mux.Handle("PATCH /api/column", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.UpdateColumn))))
+	mux.Handle("PUT /api/column", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.UpdateColumn))))
 
 	// Card
 	mux.Handle("POST /api/card", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.NewCard))))
 	mux.Handle("DELETE /api/card", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.DeleteCard))))
 	mux.Handle("GET /api/card", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.GetCard))))
-	mux.Handle("PATCH /api/card", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.UpdateCard))))
+	mux.Handle("PUT /api/card", cfg.RequireLoggedIn(cfg.RequireBoardAccess(http.HandlerFunc(cfg.UpdateCard))))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.Env.Port,
