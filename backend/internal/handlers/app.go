@@ -58,12 +58,7 @@ func (cfg *APIConfig) GetBoards(w http.ResponseWriter, r *http.Request) {
 BOARD HANDLERS
 */
 func (cfg *APIConfig) GetBoard(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("board_id")
-	board_id, err := uuid.Parse(id)
-	if err != nil {
-		utils.RespondWithError(w, 500, "You need to specify a board id", err)
-		return
-	}
+	board_id := r.Context().Value(boardIdContextKey).(uuid.UUID)
 
 	board, err := cfg.DB.GetBoard(r.Context(), board_id)
 	if err != nil {
@@ -113,8 +108,15 @@ func (cfg *APIConfig) NewBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *APIConfig) UpdateBoard(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	params := models.UpdateBoardParams{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+		return
+	}
 	board, err := cfg.DB.UpdateBoard(r.Context(), database.UpdateBoardParams{
-		Title: "New Board",
+		Title: params.Title,
 	})
 	if err != nil {
 		utils.RespondWithError(w, 500, "Couldn't create board", err)
@@ -133,14 +135,9 @@ func (cfg *APIConfig) UpdateBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("board_id")
-	board_id, err := uuid.Parse(id)
-	if err != nil {
-		utils.RespondWithError(w, 500, "You need to specify a board id", err)
-		return
-	}
+	board_id := r.Context().Value(boardIdContextKey).(uuid.UUID)
 
-	err = cfg.DB.DeleteBoard(r.Context(), board_id)
+	err := cfg.DB.DeleteBoard(r.Context(), board_id)
 	if err != nil {
 		utils.RespondWithError(w, 500, "Couldn't delete board", err)
 		return
@@ -152,14 +149,15 @@ func (cfg *APIConfig) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 COLUMN HANDLERS
 */
 func (cfg *APIConfig) GetColumn(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	col_id, err := uuid.Parse(id)
+	decoder := json.NewDecoder(r.Body)
+	params := models.ColumnParams{}
+	err := decoder.Decode(&params)
 	if err != nil {
-		utils.RespondWithError(w, 500, "You need to specify a board id", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	col, err := cfg.DB.GetColumn(r.Context(), col_id)
+	col, err := cfg.DB.GetColumn(r.Context(), params.ColumnID)
 	if err != nil {
 		utils.RespondWithError(w, 404, "Could not get column", err)
 		return
@@ -214,14 +212,15 @@ func (cfg *APIConfig) UpdateColumn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *APIConfig) DeleteColumn(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	col_id, err := uuid.Parse(id)
+	decoder := json.NewDecoder(r.Body)
+	params := models.ColumnParams{}
+	err := decoder.Decode(&params)
 	if err != nil {
-		utils.RespondWithError(w, 500, "You need to specify a column id", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	err = cfg.DB.DeleteColumn(r.Context(), col_id)
+	err = cfg.DB.DeleteColumn(r.Context(), params.ColumnID)
 	if err != nil {
 		utils.RespondWithError(w, 500, "Couldn't delete column", err)
 		return
@@ -233,14 +232,15 @@ func (cfg *APIConfig) DeleteColumn(w http.ResponseWriter, r *http.Request) {
 CARD HANDLERS
 */
 func (cfg *APIConfig) GetCard(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	card_id, err := uuid.Parse(id)
+	decoder := json.NewDecoder(r.Body)
+	params := models.CardParams{}
+	err := decoder.Decode(&params)
 	if err != nil {
-		utils.RespondWithError(w, 500, "You need to specify a card id", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	card, err := cfg.DB.GetColumn(r.Context(), card_id)
+	card, err := cfg.DB.GetColumn(r.Context(), params.CardID)
 	if err != nil {
 		utils.RespondWithError(w, 404, "Could not get card", err)
 		return
@@ -307,14 +307,15 @@ func (cfg *APIConfig) UpdateCard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *APIConfig) DeleteCard(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	cardID, err := uuid.Parse(id)
+	decoder := json.NewDecoder(r.Body)
+	params := models.CardParams{}
+	err := decoder.Decode(&params)
 	if err != nil {
-		utils.RespondWithError(w, 500, "You need to specify a card id", err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return
 	}
 
-	err = cfg.DB.DeleteCard(r.Context(), cardID)
+	err = cfg.DB.DeleteCard(r.Context(), params.CardID)
 	if err != nil {
 		utils.RespondWithError(w, 500, "Couldn't delete card", err)
 		return

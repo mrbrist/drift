@@ -52,6 +52,9 @@ type User struct {
 type BoardParams struct {
 	BoardID uuid.UUID `json:"board_id"`
 }
+type UpdateBoardParams struct {
+	Title string `json:"title"`
+}
 type ColumnParams struct {
 	ColumnID uuid.UUID `json:"column_id"`
 }
