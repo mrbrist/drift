@@ -24,6 +24,11 @@ VALUES (
         NOW()
     )
 RETURNING *;
+-- name: GetColumnsForBoard :many
+SELECT *
+FROM board_columns
+WHERE board_id = $1
+ORDER BY position ASC;
 -- name: GetColumn :one
 SELECT *
 FROM board_columns

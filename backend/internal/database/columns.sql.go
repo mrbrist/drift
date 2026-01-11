@@ -34,7 +34,7 @@ RETURNING id, board_id, title, position, created_at, updated_at
 type CreateColumnParams struct {
 	BoardID  uuid.UUID
 	Title    string
-	Position int32
+	Position float64
 }
 
 func (q *Queries) CreateColumn(ctx context.Context, arg CreateColumnParams) (BoardColumn, error) {
@@ -81,6 +81,43 @@ func (q *Queries) GetColumn(ctx context.Context, id uuid.UUID) (BoardColumn, err
 	return i, err
 }
 
+const getColumnsForBoard = `-- name: GetColumnsForBoard :many
+SELECT id, board_id, title, position, created_at, updated_at
+FROM board_columns
+WHERE board_id = $1
+ORDER BY position ASC
+`
+
+func (q *Queries) GetColumnsForBoard(ctx context.Context, boardID uuid.UUID) ([]BoardColumn, error) {
+	rows, err := q.db.QueryContext(ctx, getColumnsForBoard, boardID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []BoardColumn
+	for rows.Next() {
+		var i BoardColumn
+		if err := rows.Scan(
+			&i.ID,
+			&i.BoardID,
+			&i.Title,
+			&i.Position,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const isColumnOwner = `-- name: IsColumnOwner :one
 SELECT EXISTS (
         SELECT 1
@@ -115,7 +152,7 @@ RETURNING id, board_id, title, position, created_at, updated_at
 type UpdateColumnParams struct {
 	ID       uuid.UUID
 	Title    string
-	Position int32
+	Position float64
 }
 
 func (q *Queries) UpdateColumn(ctx context.Context, arg UpdateColumnParams) (BoardColumn, error) {

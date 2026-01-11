@@ -17,6 +17,11 @@ VALUES (
         $4
     )
 RETURNING *;
+-- name: GetCardsForColumn :many
+SELECT *
+FROM cards
+WHERE column_id = $1
+ORDER BY position ASC;
 -- name: GetCard :one
 SELECT *
 FROM cards

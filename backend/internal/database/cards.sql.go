@@ -28,7 +28,7 @@ type CreateCardParams struct {
 	ColumnID    uuid.UUID
 	Title       string
 	Description sql.NullString
-	Position    int32
+	Position    float64
 }
 
 func (q *Queries) CreateCard(ctx context.Context, arg CreateCardParams) (Card, error) {
@@ -82,6 +82,44 @@ func (q *Queries) GetCard(ctx context.Context, id uuid.UUID) (Card, error) {
 	return i, err
 }
 
+const getCardsForColumn = `-- name: GetCardsForColumn :many
+SELECT id, column_id, title, description, position, created_at, updated_at
+FROM cards
+WHERE column_id = $1
+ORDER BY position ASC
+`
+
+func (q *Queries) GetCardsForColumn(ctx context.Context, columnID uuid.UUID) ([]Card, error) {
+	rows, err := q.db.QueryContext(ctx, getCardsForColumn, columnID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Card
+	for rows.Next() {
+		var i Card
+		if err := rows.Scan(
+			&i.ID,
+			&i.ColumnID,
+			&i.Title,
+			&i.Description,
+			&i.Position,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const isCardOwner = `-- name: IsCardOwner :one
 SELECT EXISTS (
         SELECT 1
@@ -120,7 +158,7 @@ type UpdateCardParams struct {
 	ID          uuid.UUID
 	Title       string
 	Description sql.NullString
-	Position    int32
+	Position    float64
 	ColumnID    uuid.UUID
 }
 

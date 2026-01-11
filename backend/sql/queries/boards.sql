@@ -66,6 +66,10 @@ FROM boards b
     ) bc ON bc.board_id = b.id
 WHERE b.id = $1
 GROUP BY b.id;
+-- name: GetBoardByID :one
+SELECT *
+FROM boards
+WHERE id = $1;
 -- name: CreateBoard :one
 WITH new_board AS (
     INSERT INTO boards (

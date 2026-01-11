@@ -58,18 +58,59 @@ func (cfg *APIConfig) GetBoards(w http.ResponseWriter, r *http.Request) {
 BOARD HANDLERS
 */
 func (cfg *APIConfig) GetBoard(w http.ResponseWriter, r *http.Request) {
-	board_id := r.Context().Value(boardIdContextKey).(uuid.UUID)
+	ctx := r.Context()
 
-	board, err := cfg.DB.GetBoard(r.Context(), board_id)
+	boardID := ctx.Value(boardIdContextKey).(uuid.UUID)
+
+	// Fetch board
+	board, err := cfg.DB.GetBoardByID(ctx, boardID)
 	if err != nil {
 		utils.RespondWithError(w, 500, "Couldn't get board", err)
 		return
 	}
 
-	var columns []models.Column
-	if err := json.Unmarshal(board.Columns.([]byte), &columns); err != nil {
-		utils.RespondWithError(w, 500, "Error constructing board", err)
+	// Fetch columns
+	dbColumns, err := cfg.DB.GetColumnsForBoard(ctx, boardID)
+	if err != nil {
+		utils.RespondWithError(w, 500, "Couldn't get columns", err)
 		return
+	}
+
+	columns := make([]models.Column, 0, len(dbColumns))
+
+	for _, dbCol := range dbColumns {
+		// Fetch cards for column
+		dbCards, err := cfg.DB.GetCardsForColumn(ctx, dbCol.ID)
+		if err != nil {
+			utils.RespondWithError(w, 500, "Couldn't get cards for column", err)
+			return
+		}
+
+		cards := make([]models.Card, 0, len(dbCards))
+		for _, dbCard := range dbCards {
+			var desc *string
+			if dbCard.Description.Valid {
+				desc = &dbCard.Description.String
+			}
+
+			cards = append(cards, models.Card{
+				ID:          dbCard.ID,
+				Title:       dbCard.Title,
+				Description: desc,
+				Position:    dbCard.Position,
+				CreatedAt:   dbCard.CreatedAt,
+				UpdatedAt:   dbCard.UpdatedAt,
+			})
+		}
+
+		columns = append(columns, models.Column{
+			ID:        dbCol.ID,
+			Title:     dbCol.Title,
+			Position:  dbCol.Position,
+			CreatedAt: dbCol.CreatedAt,
+			UpdatedAt: dbCol.UpdatedAt,
+			Cards:     cards,
+		})
 	}
 
 	resp := models.BoardResponse{
@@ -81,7 +122,7 @@ func (cfg *APIConfig) GetBoard(w http.ResponseWriter, r *http.Request) {
 		Columns:   columns,
 	}
 
-	utils.RespondWithJSON(w, 200, resp)
+	utils.RespondWithJSON(w, http.StatusOK, resp)
 }
 
 func (cfg *APIConfig) NewBoard(w http.ResponseWriter, r *http.Request) {

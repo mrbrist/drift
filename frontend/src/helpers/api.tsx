@@ -112,7 +112,10 @@ async function createCard(board_id: string, col_id: string) {
       {
         credentials: "include",
         method: "post",
-        body: JSON.stringify({ id: col_id, title: "New Card" }),
+        body: JSON.stringify({
+          id: col_id,
+          title: "New Card",
+        }),
       }
     );
 
@@ -153,7 +156,7 @@ async function updateCard(board_id: string, card_id: string, col_id: string) {
           column_id: col_id,
           title: "Hello",
           description: "Hello body",
-          position: 0,
+          position: 100.000000000066,
         }),
       }
     );

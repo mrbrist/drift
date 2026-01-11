@@ -10,7 +10,7 @@ CREATE TABLE board_columns (
     id UUID PRIMARY KEY,
     board_id UUID NOT NULL REFERENCES boards(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
-    position INTEGER NOT NULL,
+    position NUMERIC(20, 10) NOT NULL DEFAULT 1000,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -19,7 +19,7 @@ CREATE TABLE cards (
     column_id UUID NOT NULL REFERENCES board_columns(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT,
-    position INTEGER NOT NULL,
+    position NUMERIC(20, 10) NOT NULL DEFAULT 1000,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

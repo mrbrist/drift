@@ -23,7 +23,7 @@ type BoardColumn struct {
 	ID        uuid.UUID
 	BoardID   uuid.UUID
 	Title     string
-	Position  int32
+	Position  float64
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -33,7 +33,7 @@ type Card struct {
 	ColumnID    uuid.UUID
 	Title       string
 	Description sql.NullString
-	Position    int32
+	Position    float64
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

@@ -6,3 +6,6 @@ sql:
     gen:
       go:
         out: "internal/database"
+        overrides:
+          - db_type: "pg_catalog.numeric"
+            go_type: "float64"

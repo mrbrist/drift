@@ -178,6 +178,25 @@ func (q *Queries) GetBoard(ctx context.Context, id uuid.UUID) (GetBoardRow, erro
 	return i, err
 }
 
+const getBoardByID = `-- name: GetBoardByID :one
+SELECT id, user_id, title, created_at, updated_at
+FROM boards
+WHERE id = $1
+`
+
+func (q *Queries) GetBoardByID(ctx context.Context, id uuid.UUID) (Board, error) {
+	row := q.db.QueryRowContext(ctx, getBoardByID, id)
+	var i Board
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getBoardsForUser = `-- name: GetBoardsForUser :many
 SELECT id, user_id, title, created_at, updated_at
 FROM boards
