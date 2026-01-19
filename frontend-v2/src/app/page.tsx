@@ -9,7 +9,7 @@ export default function Home() {
   const router = useRouter();
 
   function handleRegisterClick() {
-    router.replace("/login");
+    router.push("/login");
   }
 
   return (

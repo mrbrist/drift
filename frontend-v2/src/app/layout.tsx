@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "./favicon.ico",
   },
+  title: "drift | Simple Kanban",
 };
 
 export default function RootLayout({
