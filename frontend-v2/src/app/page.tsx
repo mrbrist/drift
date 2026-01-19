@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import driftLogo from "@/public/drift-logo.svg";
-import { bButton } from "@/modules/bigButton";
+import { bButton } from "@/src/modules/bigButton";
 
 export default function Home() {
   const router = useRouter();
