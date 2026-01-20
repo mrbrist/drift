@@ -1,10 +1,9 @@
 import type { NavigateFunction } from "react-router-dom";
-import type { BoardInterface } from "./interfaces";
 
 async function checkIfLoggedIn(
   nav: NavigateFunction,
   onLoggedIn: string,
-  onLoggedOut: string
+  onLoggedOut: string,
 ) {
   try {
     const res = await fetch("http://localhost:8080/api/protected", {
@@ -44,67 +43,6 @@ async function getUserData(setUserData: Function) {
   }
 }
 
-async function getBoards(setBoards: Function) {
-  try {
-    const res = await fetch("http://localhost:8080/api/boards", {
-      credentials: "include",
-      method: "get",
-    });
-
-    if (res.ok) {
-      let json = await res.json();
-      setBoards(json);
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-async function getBoard(id: string): Promise<BoardInterface | null> {
-  try {
-    const res = await fetch(`http://localhost:8080/api/board?board_id=${id}`, {
-      credentials: "include",
-      method: "get",
-    });
-
-    if (!res.ok) return null;
-
-    return await res.json();
-  } catch (err) {
-    console.log(err);
-    return null;
-  }
-}
-
-async function createBoard() {
-  try {
-    const res = await fetch(`http://localhost:8080/api/board`, {
-      credentials: "include",
-      method: "post",
-    });
-
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (err) {
-    console.log(err);
-    return null;
-  }
-}
-
-async function deleteBoard(id: string) {
-  try {
-    const res = await fetch(`http://localhost:8080/api/board?board_id=${id}`, {
-      credentials: "include",
-      method: "delete",
-    });
-
-    return res.ok;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-}
-
 async function createCard(board_id: string, col_id: string) {
   try {
     const res = await fetch(
@@ -116,7 +54,7 @@ async function createCard(board_id: string, col_id: string) {
           id: col_id,
           title: "New Card",
         }),
-      }
+      },
     );
 
     return res.ok;
@@ -134,7 +72,7 @@ async function deleteCard(board_id: string, card_id: string) {
         credentials: "include",
         method: "delete",
         body: JSON.stringify({ id: card_id }),
-      }
+      },
     );
 
     return res.ok;
@@ -158,7 +96,7 @@ async function updateCard(board_id: string, card_id: string, col_id: string) {
           description: "Hello body",
           position: 100.000000000066,
         }),
-      }
+      },
     );
 
     return res.ok;
@@ -172,10 +110,6 @@ export {
   checkIfLoggedIn,
   handleLogout,
   getUserData,
-  getBoards,
-  getBoard,
-  createBoard,
-  deleteBoard,
   createCard,
   deleteCard,
   updateCard,

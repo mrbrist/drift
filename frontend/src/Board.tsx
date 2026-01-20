@@ -5,41 +5,35 @@ import {
   checkIfLoggedIn,
   createCard,
   deleteCard,
-  getBoard,
   handleLogout,
   updateCard,
 } from "./helpers/api";
-import type { BoardInterface } from "./helpers/interfaces";
+import { useBoard } from "./api/board";
 
 function Board() {
-  let { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [board, setBoard] = useState<BoardInterface | null>(null);
 
-  function goHome() {
-    navigate("/app");
-  }
+  useEffect(() => {
+    if (!id) {
+      navigate("/app", { replace: true });
+    }
+  }, [id, navigate]);
+
+  const { board, loading } = useBoard(id);
+
+  useEffect(() => {
+    if (!id) return;
+    checkIfLoggedIn(navigate, `/board/${id}`, "/login");
+  }, [id, navigate]);
 
   function logout() {
     handleLogout(navigate);
   }
 
-  useEffect(() => {
-    checkIfLoggedIn(navigate, `/board/${id}`, "/login");
-
-    if (!id) return;
-
-    const loadBoard = async () => {
-      try {
-        const data = await getBoard(id);
-        setBoard(data);
-      } catch (err) {
-        console.error("Failed to load board", err);
-      }
-    };
-
-    loadBoard();
-  }, [id, navigate]);
+  function goHome() {
+    navigate("/app");
+  }
 
   return (
     <div className="items-center justify-center grid grid-cols-1">

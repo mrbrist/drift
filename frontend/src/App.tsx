@@ -2,20 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import driftLogo from "./assets/drift-logo.svg";
 import { bButton } from "./modules/bigButton";
-import {
-  checkIfLoggedIn,
-  handleLogout,
-  getUserData,
-  getBoards,
-  deleteBoard,
-} from "./helpers/api";
-import type { BoardsInterface, UserInterface } from "./helpers/interfaces";
-import { handleCreateBoard } from "./helpers/kanban";
+import { checkIfLoggedIn, handleLogout, getUserData } from "./helpers/api";
+import type { UserInterface } from "./helpers/interfaces";
+import { useBoards } from "./api/boards";
 
 function App() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<UserInterface | null>(null);
-  const [boards, setBoards] = useState<BoardsInterface>([]);
+  const { boards, addBoard, removeBoard } = useBoards();
 
   function logout() {
     handleLogout(navigate);
@@ -25,7 +19,6 @@ function App() {
     checkIfLoggedIn(navigate, "/app", "/login");
 
     getUserData(setUserData);
-    getBoards(setBoards);
   }, []);
 
   return (
@@ -50,9 +43,7 @@ function App() {
         <h1>LOGGED IN</h1>
         <h2 className="pb-5 text-slate-400">{userData?.email}</h2>
         <div className="ml">
-          {bButton("green", "md", "New Board", false, "mr-2", () =>
-            handleCreateBoard(setBoards)
-          )}
+          {bButton("green", "md", "New Board", false, "mr-2", addBoard)}
 
           {bButton("red", "md", "Log Out", false, "", logout)}
         </div>
@@ -73,15 +64,8 @@ function App() {
                         hover:border-red-500
                         transition-colors
                         duration-150"
-              onClick={async () => {
-                setBoards((prev) =>
-                  prev ? prev.filter((b) => b.id !== board.id) : prev
-                );
-
-                const success = await deleteBoard(board.id);
-                if (!success) {
-                  getBoards(setBoards);
-                }
+              onClick={() => {
+                removeBoard(board.id);
               }}
             >
               Delete
