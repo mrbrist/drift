@@ -1,9 +1,9 @@
-import { createBoard } from "./api";
+import { createBoard } from "../api/api";
 import type { BoardsInterface } from "./interfaces";
 import type { Dispatch, SetStateAction } from "react";
 
 async function handleCreateBoard(
-  setBoards: Dispatch<SetStateAction<BoardsInterface>>
+  setBoards: Dispatch<SetStateAction<BoardsInterface>>,
 ) {
   const newBoard = await createBoard();
 

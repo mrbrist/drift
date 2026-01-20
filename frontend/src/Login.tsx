@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkIfLoggedIn } from "./helpers/api";
+import { checkIfLoggedIn } from "./api/api";
 
 declare global {
   interface Window {
@@ -53,7 +53,7 @@ function Login() {
         theme: "outline",
         size: "large",
         width: 260,
-      }
+      },
     );
   }, [navigate]);
 

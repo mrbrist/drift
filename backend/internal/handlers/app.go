@@ -249,7 +249,13 @@ func (cfg *APIConfig) UpdateColumn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, 200, col)
+	utils.RespondWithJSON(w, 200, models.Column{
+		ID:        col.ID,
+		Title:     col.Title,
+		Position:  col.Position,
+		CreatedAt: col.CreatedAt,
+		UpdatedAt: col.UpdatedAt,
+	})
 }
 
 func (cfg *APIConfig) DeleteColumn(w http.ResponseWriter, r *http.Request) {
@@ -281,13 +287,20 @@ func (cfg *APIConfig) GetCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := cfg.DB.GetColumn(r.Context(), params.CardID)
+	card, err := cfg.DB.GetCard(r.Context(), params.CardID)
 	if err != nil {
 		utils.RespondWithError(w, 404, "Could not get card", err)
 		return
 	}
 
-	utils.RespondWithJSON(w, 200, card)
+	utils.RespondWithJSON(w, 200, models.Card{
+		ID:          card.ID,
+		Title:       card.Title,
+		Description: &card.Description.String,
+		Position:    card.Position,
+		CreatedAt:   card.CreatedAt,
+		UpdatedAt:   card.UpdatedAt,
+	})
 }
 
 func (cfg *APIConfig) NewCard(w http.ResponseWriter, r *http.Request) {
@@ -315,7 +328,14 @@ func (cfg *APIConfig) NewCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, 200, card)
+	utils.RespondWithJSON(w, 200, models.Card{
+		ID:          card.ID,
+		Title:       card.Title,
+		Description: &card.Description.String,
+		Position:    card.Position,
+		CreatedAt:   card.CreatedAt,
+		UpdatedAt:   card.UpdatedAt,
+	})
 }
 
 func (cfg *APIConfig) UpdateCard(w http.ResponseWriter, r *http.Request) {
@@ -344,7 +364,14 @@ func (cfg *APIConfig) UpdateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, 200, card)
+	utils.RespondWithJSON(w, 200, models.Card{
+		ID:          card.ID,
+		Title:       card.Title,
+		Description: &card.Description.String,
+		Position:    card.Position,
+		CreatedAt:   card.CreatedAt,
+		UpdatedAt:   card.UpdatedAt,
+	})
 }
 
 func (cfg *APIConfig) DeleteCard(w http.ResponseWriter, r *http.Request) {

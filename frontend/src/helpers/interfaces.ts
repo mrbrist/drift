@@ -23,12 +23,22 @@ export interface Column {
   position: number;
   created_at: string;
   updated_at: string;
-  cards: any[];
+  cards: Card[];
 }
 
+export interface Card {
+  id: string;
+  column_id: string;
+  title: string;
+  description: string;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
 export type {
   User as UserInterface,
   Board as BoardInterface,
   Boards as BoardsInterface,
   Column as ColumnInterface,
+  Card as CardInterface,
 };
