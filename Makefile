@@ -16,7 +16,7 @@ goosereset:
 	cd backend && goose postgres $(DB_URL) -dir "sql/schema" reset
 
 start-fe:
-	cd frontend-v2 && npm run dev
+	cd frontend && npm run dev
 
 dev: start-be start-fe
 	echo "STARTING DEV ENVIRONMENT\n"
