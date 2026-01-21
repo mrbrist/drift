@@ -22,6 +22,12 @@ SELECT *
 FROM cards
 WHERE column_id = $1
 ORDER BY position ASC;
+-- name: GetLastCardForColumn :one
+SELECT *
+FROM cards
+WHERE column_id = $1
+ORDER BY position DESC
+LIMIT 1;
 -- name: GetCard :one
 SELECT *
 FROM cards

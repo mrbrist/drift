@@ -122,7 +122,6 @@ async function updateCard(
             {
               id: card_id,
               column_id: col_id,
-              position: 100.000000000066,
             },
             updates,
           ),

@@ -15,13 +15,24 @@ export function useBoard(boardId?: string) {
     setError(null);
 
     getBoard(boardId)
-      .then((data) => setBoard(data))
+      .then((data) => setBoard(sortBoard(data)))
       .catch((err) => {
         console.error(err);
         setError("Failed to load board");
       })
       .finally(() => setLoading(false));
   }, [boardId]);
+
+  function sortBoard(board: BoardInterface | null): BoardInterface | null {
+    if (!board) return null;
+    return {
+      ...board,
+      columns: board.columns.map((col) => ({
+        ...col,
+        cards: [...col.cards].sort((a, b) => a.position - b.position),
+      })),
+    };
+  }
 
   // Add a card (waits for server response)
   async function addCard(columnId: string) {
@@ -40,7 +51,7 @@ export function useBoard(boardId?: string) {
       setBoard((prev) => {
         if (!prev) return prev;
 
-        return {
+        const updatedBoard = {
           ...prev,
           columns: prev.columns.map((col) =>
             col.id === columnId
@@ -48,6 +59,7 @@ export function useBoard(boardId?: string) {
               : col,
           ),
         };
+        return sortBoard(updatedBoard);
       });
     } catch (err) {
       console.error(err);
@@ -71,7 +83,7 @@ export function useBoard(boardId?: string) {
       setBoard((prev) => {
         if (!prev) return prev;
 
-        return {
+        const updatedBoard = {
           ...prev,
           columns: prev.columns.map((col) =>
             col.id === columnId
@@ -79,6 +91,7 @@ export function useBoard(boardId?: string) {
               : col,
           ),
         };
+        return sortBoard(updatedBoard);
       });
     } catch (err) {
       console.error(err);
@@ -111,7 +124,7 @@ export function useBoard(boardId?: string) {
       setBoard((prev) => {
         if (!prev) return prev;
 
-        return {
+        const updatedBoard = {
           ...prev,
           columns: prev.columns.map((col) =>
             col.id === columnId
@@ -124,6 +137,7 @@ export function useBoard(boardId?: string) {
               : col,
           ),
         };
+        return sortBoard(updatedBoard);
       });
     } catch (err) {
       console.error(err);
@@ -137,7 +151,6 @@ export function useBoard(boardId?: string) {
     board,
     loading,
     error,
-    setBoard,
     addCard,
     removeCard,
     editCard,

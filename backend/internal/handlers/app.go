@@ -317,11 +317,23 @@ func (cfg *APIConfig) NewCard(w http.ResponseWriter, r *http.Request) {
 		Valid:  true,
 	}
 
+	// Get the last card in the column (highest position)
+	lastCard, err := cfg.DB.GetLastCardForColumn(r.Context(), params.ColumnID)
+	if err != nil && err != sql.ErrNoRows {
+		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't get last card in column", err)
+		return
+	}
+
+	var newPosition float64 = 1024 // default if column empty
+	if err == nil {
+		newPosition = lastCard.Position + 1024
+	}
+
 	card, err := cfg.DB.CreateCard(r.Context(), database.CreateCardParams{
 		ColumnID:    params.ColumnID,
 		Title:       params.Title,
 		Description: desc,
-		Position:    params.Position,
+		Position:    newPosition,
 	})
 	if err != nil {
 		utils.RespondWithError(w, 500, "Could not create card", err)

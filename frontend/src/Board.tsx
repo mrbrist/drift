@@ -1,68 +1,85 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { DndContext, closestCorners, type DragEndEvent } from "@dnd-kit/core";
 import { bButton } from "./modules/bigButton";
 import { checkIfLoggedIn, handleLogout } from "./api/api";
 import { useBoard } from "./api/board";
-import { sButton } from "./modules/smallButton";
+import Column from "./modules/Column";
+import { getNewCardPosition } from "./helpers/position";
 
 function Board() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!id) {
-      navigate("/app", { replace: true });
-    }
-  }, [id, navigate]);
-
   const { board, addCard, editCard, removeCard } = useBoard(id);
 
   useEffect(() => {
-    if (!id) return;
-    checkIfLoggedIn(navigate, `/board/${id}`, "/login");
+    if (!id) navigate("/app", { replace: true });
+    else checkIfLoggedIn(navigate, `/board/${id}`, "/login");
   }, [id, navigate]);
 
-  function logout() {
-    handleLogout(navigate);
-  }
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || !board) return;
 
-  function goHome() {
-    navigate("/app");
+    const activeId = active.id;
+    const sourceColumnId = active.data.current?.columnId;
+    const targetColumnId = over.data.current?.columnId;
+
+    if (!targetColumnId) return;
+
+    const sourceColumn = board.columns.find((c) => c.id === sourceColumnId);
+    const targetColumn = board.columns.find((c) => c.id === targetColumnId);
+
+    if (!sourceColumn || !targetColumn) return;
+
+    const activeCard = sourceColumn.cards.find((c) => c.id === activeId);
+    if (!activeCard) return;
+
+    const sortedTargetCards = [...targetColumn.cards]
+      .filter((c) => c.id !== activeId)
+      .sort((a, b) => a.position - b.position);
+
+    const overIndex = sortedTargetCards.findIndex((c) => c.id === over.id);
+
+    const insertIndex = overIndex === -1 ? sortedTargetCards.length : overIndex;
+
+    const newPosition = getNewCardPosition(sortedTargetCards, insertIndex);
+
+    editCard(sourceColumnId, activeId.toString(), {
+      title: activeCard.title,
+      column_id: targetColumnId,
+      position: newPosition,
+    });
   }
 
   return (
-    <div className="items-center justify-center grid grid-cols-1">
-      <div className="mt-20 text-white">
-        <br />
+    <div className="grid place-items-center text-white mt-20">
+      <div className="w-full max-w-5xl">
         {board ? board.id : "Loading board..."}
-        {board?.columns.map((c) => (
-          <div key={c.id}>
-            <h2>
-              {c.id} - {c.title}
-            </h2>
-            {sButton("green", "New Card", false, "", () => addCard(c.id))}
-            {c.cards.map((card) => (
-              <div key={card.id}>
-                <span className="text-amber-100">
-                  {card.id} #{card.position} - {card.title}
-                </span>
-                {sButton("blue", "Update Card", false, "", () =>
-                  editCard(c.id, card.id, {
-                    title: "bob",
-                    position: 100.000000000066,
-                  }),
-                )}
-                {sButton("red", "Delete Card", false, "", () =>
-                  removeCard(c.id, card.id),
-                )}
-              </div>
+
+        <DndContext
+          collisionDetection={closestCorners}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            {board?.columns.map((column) => (
+              <Column
+                key={column.id}
+                column={column}
+                addCard={addCard}
+                editCard={editCard}
+                removeCard={removeCard}
+              />
             ))}
-            <br />
           </div>
-        ))}
+        </DndContext>
+
         <div className="mt-20">
-          {bButton("blue", "md", "Home", false, "mr-2", goHome)}
-          {bButton("red", "md", "Log Out", false, "", logout)}
+          {bButton("blue", "md", "Home", false, "mr-2", () => navigate("/app"))}
+          {bButton("red", "md", "Log Out", false, "", () =>
+            handleLogout(navigate),
+          )}
         </div>
       </div>
     </div>

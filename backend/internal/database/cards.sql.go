@@ -120,6 +120,30 @@ func (q *Queries) GetCardsForColumn(ctx context.Context, columnID uuid.UUID) ([]
 	return items, nil
 }
 
+const getLastCardForColumn = `-- name: GetLastCardForColumn :one
+SELECT id, column_id, title, description, position, created_at, updated_at
+FROM cards
+WHERE column_id = $1
+ORDER BY position DESC
+LIMIT 1
+`
+
+// returns: *Card
+func (q *Queries) GetLastCardForColumn(ctx context.Context, columnID uuid.UUID) (Card, error) {
+	row := q.db.QueryRowContext(ctx, getLastCardForColumn, columnID)
+	var i Card
+	err := row.Scan(
+		&i.ID,
+		&i.ColumnID,
+		&i.Title,
+		&i.Description,
+		&i.Position,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const isCardOwner = `-- name: IsCardOwner :one
 SELECT EXISTS (
         SELECT 1
