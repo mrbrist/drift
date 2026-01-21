@@ -28,6 +28,7 @@ function Card({ card, col, editCard, removeCard }: any) {
       >
         ☰ {card.position}
       </div>
+      <span className="text-slate-500 block pb-3">{card.id}</span>
       <span className="text-amber-100 block pb-3">{card.title}</span>
       {sButton("blue", "Update Card", false, "", () =>
         editCard(col.id, card.id, {
