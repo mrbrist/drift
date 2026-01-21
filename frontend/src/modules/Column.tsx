@@ -8,9 +8,7 @@ import { sButton } from "./smallButton";
 function Column({ column, addCard, editCard, removeCard }: any) {
   return (
     <div className="p-4 border rounded-md mb-6">
-      <h2 className="text-xl font-bold mb-2">
-        {column.id} - {column.title}
-      </h2>
+      <h2 className="text-xl font-bold mb-2">{column.title}</h2>
 
       {sButton("green", "New Card", false, "", () => addCard(column.id))}
 
