@@ -1,12 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { bButton } from "./modules/bigButton";
-import {
-  checkIfLoggedIn,
-  deleteCard,
-  handleLogout,
-  updateCard,
-} from "./api/api";
+import { checkIfLoggedIn, handleLogout } from "./api/api";
 import { useBoard } from "./api/board";
 import { sButton } from "./modules/smallButton";
 
@@ -20,7 +15,7 @@ function Board() {
     }
   }, [id, navigate]);
 
-  const { board, loading, addCard, editCard, removeCard } = useBoard(id);
+  const { board, addCard, editCard, removeCard } = useBoard(id);
 
   useEffect(() => {
     if (!id) return;

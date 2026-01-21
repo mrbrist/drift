@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import { getBoard, createCard, deleteCard, updateCard } from "./api";
-import type {
-  BoardInterface,
-  CardInterface,
-  ColumnInterface,
-} from "../helpers/interfaces";
+import type { BoardInterface, CardInterface } from "../helpers/interfaces";
 
 export function useBoard(boardId?: string) {
   const [board, setBoard] = useState<BoardInterface | null>(null);
