@@ -4,7 +4,7 @@ import driftLogo from "./assets/drift-logo.svg";
 import { bButton } from "./modules/bigButton";
 import { checkIfLoggedIn, handleLogout, getUserData } from "./api/api";
 import type { UserInterface } from "./helpers/interfaces";
-import { useBoards } from "./api/boards";
+import { useBoards } from "./api/useBoards";
 
 function App() {
   const navigate = useNavigate();
