@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DndContext, closestCorners, type DragEndEvent } from "@dnd-kit/core";
+import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { bButton } from "./modules/bigButton";
 import { checkIfLoggedIn, handleLogout } from "./api/auth";
 import { useBoard } from "./api/useBoard";
