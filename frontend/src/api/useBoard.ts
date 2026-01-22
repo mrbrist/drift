@@ -1,40 +1,47 @@
 import { useEffect, useState } from "react";
-import { getBoard, createCard, deleteCard, updateCard } from "./api";
 import type { BoardInterface, CardInterface } from "../helpers/interfaces";
+import { API_BASE } from "./consts";
+
+/* ============================
+   Hook
+============================ */
 
 export function useBoard(boardId?: string) {
   const [board, setBoard] = useState<BoardInterface | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load board when boardId changes
+  // Load board
   useEffect(() => {
     if (!boardId) return;
+    loadBoard(boardId);
+  }, [boardId]);
 
+  async function loadBoard(id: string) {
     setLoading(true);
     setError(null);
 
-    getBoard(boardId)
-      .then((data) => setBoard(sortBoard(data)))
-      .catch((err) => {
-        console.error(err);
-        setError("Failed to load board");
-      })
-      .finally(() => setLoading(false));
-  }, [boardId]);
+    try {
+      const res = await fetch(`${API_BASE}/board?board_id=${id}`, {
+        credentials: "include",
+      });
 
-  function sortBoard(board: BoardInterface | null): BoardInterface | null {
-    if (!board) return null;
-    return {
-      ...board,
-      columns: board.columns.map((col) => ({
-        ...col,
-        cards: [...col.cards].sort((a, b) => a.position - b.position),
-      })),
-    };
+      if (!res.ok) throw new Error("Failed to fetch board");
+
+      const data: BoardInterface = await res.json();
+      setBoard(sortBoard(data));
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load board");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Add a card (waits for server response)
+  /* ============================
+     Card actions
+  ============================ */
+
   async function addCard(columnId: string) {
     if (!board) return;
 
@@ -42,25 +49,32 @@ export function useBoard(boardId?: string) {
     setError(null);
 
     try {
-      const newCard: CardInterface | null = await createCard(
-        board.id,
-        columnId,
-      );
-      if (!newCard) throw new Error("Failed to create card");
-
-      setBoard((prev) => {
-        if (!prev) return prev;
-
-        const updatedBoard = {
-          ...prev,
-          columns: prev.columns.map((col) =>
-            col.id === columnId
-              ? { ...col, cards: [...col.cards, newCard] }
-              : col,
-          ),
-        };
-        return sortBoard(updatedBoard);
+      const res = await fetch(`${API_BASE}/card?board_id=${board.id}`, {
+        credentials: "include",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: columnId,
+          title: "New Card",
+        }),
       });
+
+      if (!res.ok) throw new Error("Failed to create card");
+
+      const newCard: CardInterface = await res.json();
+
+      setBoard((prev) =>
+        prev
+          ? sortBoard({
+              ...prev,
+              columns: prev.columns.map((col) =>
+                col.id === columnId
+                  ? { ...col, cards: [...col.cards, newCard] }
+                  : col,
+              ),
+            })
+          : prev,
+      );
     } catch (err) {
       console.error(err);
       setError("Failed to add card");
@@ -69,7 +83,6 @@ export function useBoard(boardId?: string) {
     }
   }
 
-  // Delete a card (waits for server response)
   async function removeCard(columnId: string, cardId: string) {
     if (!board) return;
 
@@ -77,22 +90,30 @@ export function useBoard(boardId?: string) {
     setError(null);
 
     try {
-      const success: boolean = await deleteCard(board.id, cardId);
-      if (!success) throw new Error("Failed to delete card");
-
-      setBoard((prev) => {
-        if (!prev) return prev;
-
-        const updatedBoard = {
-          ...prev,
-          columns: prev.columns.map((col) =>
-            col.id === columnId
-              ? { ...col, cards: col.cards.filter((c) => c.id !== cardId) }
-              : col,
-          ),
-        };
-        return sortBoard(updatedBoard);
+      const res = await fetch(`${API_BASE}/card?board_id=${board.id}`, {
+        credentials: "include",
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: cardId }),
       });
+
+      if (!res.ok) throw new Error("Failed to delete card");
+
+      setBoard((prev) =>
+        prev
+          ? sortBoard({
+              ...prev,
+              columns: prev.columns.map((col) =>
+                col.id === columnId
+                  ? {
+                      ...col,
+                      cards: col.cards.filter((c) => c.id !== cardId),
+                    }
+                  : col,
+              ),
+            })
+          : prev,
+      );
     } catch (err) {
       console.error(err);
       setError("Failed to delete card");
@@ -101,7 +122,6 @@ export function useBoard(boardId?: string) {
     }
   }
 
-  // Update a card (waits for server response)
   async function editCard(
     columnId: string,
     cardId: string,
@@ -113,32 +133,38 @@ export function useBoard(boardId?: string) {
     setError(null);
 
     try {
-      const updatedCard: CardInterface | null = await await updateCard(
-        board.id,
-        cardId,
-        columnId,
-        updates,
-      );
-      if (!updatedCard) throw new Error("Failed to update card");
-
-      setBoard((prev) => {
-        if (!prev) return prev;
-
-        const updatedBoard = {
-          ...prev,
-          columns: prev.columns.map((col) =>
-            col.id === columnId
-              ? {
-                  ...col,
-                  cards: col.cards.map((c) =>
-                    c.id === cardId ? { ...c, ...updates } : c,
-                  ),
-                }
-              : col,
-          ),
-        };
-        return sortBoard(updatedBoard);
+      const res = await fetch(`${API_BASE}/card?board_id=${board.id}`, {
+        credentials: "include",
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: cardId,
+          column_id: columnId,
+          ...updates,
+        }),
       });
+
+      if (!res.ok) throw new Error("Failed to update card");
+
+      const updatedCard: CardInterface = await res.json();
+
+      setBoard((prev) =>
+        prev
+          ? sortBoard({
+              ...prev,
+              columns: prev.columns.map((col) =>
+                col.id === columnId
+                  ? {
+                      ...col,
+                      cards: col.cards.map((c) =>
+                        c.id === cardId ? updatedCard : c,
+                      ),
+                    }
+                  : col,
+              ),
+            })
+          : prev,
+      );
     } catch (err) {
       console.error(err);
       setError("Failed to update card");
@@ -154,5 +180,20 @@ export function useBoard(boardId?: string) {
     addCard,
     removeCard,
     editCard,
+    reloadBoard: () => boardId && loadBoard(boardId),
+  };
+}
+
+/* ============================
+   Helpers
+============================ */
+
+function sortBoard(board: BoardInterface): BoardInterface {
+  return {
+    ...board,
+    columns: board.columns.map((col) => ({
+      ...col,
+      cards: [...col.cards].sort((a, b) => a.position - b.position),
+    })),
   };
 }

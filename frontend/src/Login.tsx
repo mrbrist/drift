@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkIfLoggedIn } from "./api/api";
+import { checkIfLoggedIn } from "./api/auth";
 
 declare global {
   interface Window {

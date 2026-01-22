@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import driftLogo from "./assets/drift-logo.svg";
 import { bButton } from "./modules/bigButton";
-import { checkIfLoggedIn, handleLogout, getUserData } from "./api/api";
+import { checkIfLoggedIn, handleLogout, getUserData } from "./api/auth";
 import type { UserInterface } from "./helpers/interfaces";
 import { useBoards } from "./api/useBoards";
 
