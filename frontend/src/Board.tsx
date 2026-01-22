@@ -40,9 +40,7 @@ function Board() {
       .filter((c) => c.id !== activeId)
       .sort((a, b) => a.position - b.position);
 
-    const overIndex = sortedTargetCards.findIndex((c) => c.id === over.id) + 1;
-
-    console.log(overIndex, over.id);
+    let overIndex = event.over?.data.current?.sortable.index;
 
     const insertIndex = overIndex === -1 ? sortedTargetCards.length : overIndex;
 

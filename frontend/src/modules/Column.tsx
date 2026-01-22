@@ -13,7 +13,7 @@ function Column({ column, addCard, editCard, removeCard }: any) {
       {sButton("green", "New Card", false, "", () => addCard(column.id))}
 
       <SortableContext
-        items={column.cards.map((c: any) => c.id)}
+        items={column.cards}
         strategy={verticalListSortingStrategy}
       >
         {column.cards.map((card: any) => (
