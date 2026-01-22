@@ -58,10 +58,7 @@ function Board() {
       <div className="w-full max-w-5xl">
         {board ? board.id : "Loading board..."}
 
-        <DndContext
-          collisionDetection={closestCorners}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
             {board?.columns.map((column) => (
               <Column

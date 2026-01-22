@@ -26,7 +26,7 @@ function Card({ card, col, editCard, removeCard }: any) {
         {...listeners}
         className="cursor-grab text-amber-300 font-semibold select-none"
       >
-        ☰ {card.position}
+        ☰
       </div>
       <span className="text-slate-500 block pb-3">{card.id}</span>
       <span className="text-amber-100 block pb-3">{card.title}</span>
