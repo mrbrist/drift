@@ -1,5 +1,5 @@
 import type { NavigateFunction } from "react-router-dom";
-import { API_BASE } from "./consts";
+import { API_BASE } from "../helpers/consts";
 
 async function checkIfLoggedIn(
   nav: NavigateFunction,

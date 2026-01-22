@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { BoardInterface, CardInterface } from "../helpers/interfaces";
-import { API_BASE } from "./consts";
+import { API_BASE } from "../helpers/consts";
 
 /* ============================
    Hook
