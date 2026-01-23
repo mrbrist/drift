@@ -17,7 +17,6 @@ function Board() {
 
   const { board, addCard, editCard, removeCard } = useBoard(id);
 
-  // Local board for smooth drag
   const [localBoard, setLocalBoard] = useState(board);
 
   useEffect(() => {

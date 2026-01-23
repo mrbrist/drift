@@ -29,7 +29,6 @@ function Column({ column, addCard, editCard, removeCard }: any) {
 
       {sButton("green", "New Card", false, "mb-2", () => addCard(column.id))}
 
-      {/* SortableContext only sorts cards inside the column */}
       <SortableContext
         items={column.cards}
         strategy={verticalListSortingStrategy}
