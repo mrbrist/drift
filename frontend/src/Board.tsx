@@ -1,6 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DndContext, type DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  type DragEndEvent,
+  type DragOverEvent,
+} from "@dnd-kit/core";
 import { bButton } from "./modules/bigButton";
 import { checkIfLoggedIn, handleLogout } from "./api/auth";
 import { useBoard } from "./api/useBoard";
@@ -13,44 +17,62 @@ function Board() {
 
   const { board, addCard, editCard, removeCard } = useBoard(id);
 
+  // Local board for smooth drag
+  const [localBoard, setLocalBoard] = useState(board);
+
   useEffect(() => {
     if (!id) navigate("/app", { replace: true });
     else checkIfLoggedIn(navigate, `/board/${id}`, "/login");
   }, [id, navigate]);
 
+  useEffect(() => {
+    if (board) setLocalBoard(board);
+  }, [board]);
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || !board) return;
 
     const activeId = active.id;
+    const targetColumnId = over?.data.current?.columnId;
     const sourceColumnId = active.data.current?.columnId;
-    const targetColumnId = over.data.current?.columnId;
 
-    if (!targetColumnId) return;
+    if (!targetColumnId || !sourceColumnId) return;
 
-    const sourceColumn = board.columns.find((c) => c.id === sourceColumnId);
-    const targetColumn = board.columns.find((c) => c.id === targetColumnId);
-
+    const sourceColumn = board?.columns.find((c) => c.id === sourceColumnId);
+    const targetColumn = board?.columns.find((c) => c.id === targetColumnId);
     if (!sourceColumn || !targetColumn) return;
 
-    const activeCard = sourceColumn.cards.find((c) => c.id === activeId);
+    const activeCard = sourceColumn.cards.find((c) => c.id === active.id);
     if (!activeCard) return;
 
-    const sortedTargetCards = [...targetColumn.cards]
-      .filter((c) => c.id !== activeId)
-      .sort((a, b) => a.position - b.position);
+    if (event.over?.data.current?.sortable) {
+      const sortedTargetCards = [...targetColumn.cards]
+        .filter((c) => c.id !== activeId)
+        .sort((a, b) => a.position - b.position);
 
-    let overIndex = event.over?.data.current?.sortable.index;
+      let overIndex = event.over?.data.current?.sortable.index;
 
-    const insertIndex = overIndex === -1 ? sortedTargetCards.length : overIndex;
+      const insertIndex =
+        overIndex === -1 ? sortedTargetCards.length : overIndex;
 
-    const newPosition = getNewCardPosition(sortedTargetCards, insertIndex);
+      const newPosition = getNewCardPosition(sortedTargetCards, insertIndex);
 
-    editCard(sourceColumnId, activeId.toString(), {
-      title: activeCard.title,
-      column_id: targetColumnId,
-      position: newPosition,
-    });
+      editCard(sourceColumnId, activeId.toString(), {
+        title: activeCard.title,
+        column_id: targetColumnId,
+        position: newPosition,
+      });
+    } else {
+      editCard(sourceColumnId, active.id.toString(), {
+        title: activeCard.title,
+        column_id: targetColumnId,
+        position: 1024,
+      });
+    }
+  }
+
+  function handleDragOver(event: DragOverEvent) {
+    console.log(event);
   }
 
   return (
@@ -58,9 +80,9 @@ function Board() {
       <div className="w-full max-w-5xl">
         {board ? board.id : "Loading board..."}
 
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            {board?.columns.map((column) => (
+            {localBoard?.columns.map((column) => (
               <Column
                 key={column.id}
                 column={column}
