@@ -18,7 +18,7 @@ function Card({ card, col, editCard, removeCard }: any) {
 
   return (
     <div
-      className="mb-3 border border-slate-500 rounded-md"
+      className="mb-3 border border-slate-500 rounded-md bg-slate-800"
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -31,7 +31,15 @@ function Card({ card, col, editCard, removeCard }: any) {
         <GripHorizontal className="w-5" />
       </div>
 
-      <span className="text-amber-100 block pt-2 pb-3">{card.title}</span>
+      <span className="text-amber-100 text-lg block pt-2 pb-1">
+        {card.title}
+      </span>
+
+      {card.description ? (
+        <span className="text-slate-200 text-md block pb-3">
+          {card.description}
+        </span>
+      ) : null}
 
       <div className="flex flex-row justify-between mr-3">
         {iButton("blue", "edit", false, "", () =>
