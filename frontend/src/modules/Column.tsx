@@ -5,6 +5,7 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 import Card from "./Card";
 import { sButton } from "./smallButton";
+import type { CardInterface } from "../helpers/interfaces";
 
 type DroppableData = {
   columnId: string;
@@ -30,7 +31,7 @@ function Column({ column, addCard, editCard, removeCard }: any) {
       {sButton("green", "New Card", false, "mb-2", () => addCard(column.id))}
 
       <SortableContext
-        items={column.cards}
+        items={column.cards.map((c: CardInterface) => c.id)}
         strategy={verticalListSortingStrategy}
       >
         <div className="flex-1 flex flex-col gap-2 min-h-25">

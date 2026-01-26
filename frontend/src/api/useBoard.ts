@@ -123,7 +123,7 @@ export function useBoard(boardId?: string) {
   }
 
   async function editCard(
-    columnId: string,
+    _columnId: string, // no longer trusted
     cardId: string,
     updates: Partial<CardInterface>,
   ) {
@@ -139,7 +139,6 @@ export function useBoard(boardId?: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: cardId,
-          column_id: columnId,
           ...updates,
         }),
       });
@@ -148,23 +147,30 @@ export function useBoard(boardId?: string) {
 
       const updatedCard: CardInterface = await res.json();
 
-      setBoard((prev) =>
-        prev
-          ? sortBoard({
-              ...prev,
-              columns: prev.columns.map((col) =>
-                col.id === columnId
-                  ? {
-                      ...col,
-                      cards: col.cards.map((c) =>
-                        c.id === cardId ? updatedCard : c,
-                      ),
-                    }
-                  : col,
-              ),
-            })
-          : prev,
-      );
+      setBoard((prev) => {
+        if (!prev) return prev;
+
+        return sortBoard({
+          ...prev,
+          columns: prev.columns.map((col) => {
+            // remove from all columns first
+            const filteredCards = col.cards.filter((c) => c.id !== cardId);
+
+            // insert into new column
+            if (col.id === updatedCard.column_id) {
+              return {
+                ...col,
+                cards: [...filteredCards, updatedCard],
+              };
+            }
+
+            return {
+              ...col,
+              cards: filteredCards,
+            };
+          }),
+        });
+      });
     } catch (err) {
       console.error(err);
       setError("Failed to update card");

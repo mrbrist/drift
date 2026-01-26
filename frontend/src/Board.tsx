@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  closestCorners,
   DndContext,
   type DragEndEvent,
   type DragOverEvent,
@@ -15,8 +16,8 @@ function Board() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { board, addCard, editCard, removeCard } = useBoard(id);
-
+  const { board, addCard, editCard, removeCard, reloadBoard } = useBoard(id);
+  const [isDragging, setIsDragging] = useState(false);
   const [localBoard, setLocalBoard] = useState(board);
 
   useEffect(() => {
@@ -25,53 +26,96 @@ function Board() {
   }, [id, navigate]);
 
   useEffect(() => {
-    if (board) setLocalBoard(board);
-  }, [board]);
+    if (board && !isDragging) setLocalBoard(board);
+  }, [board, isDragging]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
+    if (!over || !localBoard) return;
 
     const activeId = active.id;
-    const targetColumnId = over?.data.current?.columnId;
     const sourceColumnId = active.data.current?.columnId;
+    const targetColumnId = over.data.current?.columnId;
 
-    if (!targetColumnId || !sourceColumnId) return;
+    if (!sourceColumnId || !targetColumnId) return;
 
-    const sourceColumn = board?.columns.find((c) => c.id === sourceColumnId);
-    const targetColumn = board?.columns.find((c) => c.id === targetColumnId);
+    const sourceColumn = localBoard.columns.find(
+      (c) => c.id === sourceColumnId,
+    );
+    const targetColumn = localBoard.columns.find(
+      (c) => c.id === targetColumnId,
+    );
     if (!sourceColumn || !targetColumn) return;
 
-    const activeCard = sourceColumn.cards.find((c) => c.id === active.id);
+    const activeCard = sourceColumn.cards.find((c) => c.id === activeId);
     if (!activeCard) return;
 
-    if (event.over?.data.current?.sortable) {
-      const sortedTargetCards = [...targetColumn.cards]
-        .filter((c) => c.id !== activeId)
-        .sort((a, b) => a.position - b.position);
+    // Determine index in target column
+    let insertIndex = targetColumn.cards.length;
 
-      let overIndex = event.over?.data.current?.sortable.index;
-
-      const insertIndex =
-        overIndex === -1 ? sortedTargetCards.length : overIndex;
-
-      const newPosition = getNewCardPosition(sortedTargetCards, insertIndex);
-
-      editCard(sourceColumnId, activeId.toString(), {
-        title: activeCard.title,
-        column_id: targetColumnId,
-        position: newPosition,
-      });
-    } else {
-      editCard(sourceColumnId, active.id.toString(), {
-        title: activeCard.title,
-        column_id: targetColumnId,
-        position: 1024,
-      });
+    if (over.data.current?.sortable) {
+      const overIndex = over.data.current.sortable.index;
+      insertIndex = overIndex === -1 ? targetColumn.cards.length : overIndex;
     }
+
+    const sortedTargetCards = targetColumn.cards
+      .filter((c) => c.id !== activeId)
+      .sort((a, b) => a.position - b.position);
+
+    const newPosition = getNewCardPosition(sortedTargetCards, insertIndex);
+
+    editCard(sourceColumnId, activeId.toString(), {
+      title: activeCard.title,
+      column_id: targetColumnId,
+      position: newPosition,
+    });
+
+    // THIS IS REALLY BAD, THIS NEEDS FIXING
+    reloadBoard();
   }
 
   function handleDragOver(event: DragOverEvent) {
-    console.log(event);
+    const { active, over } = event;
+    if (!over || !localBoard) return;
+
+    const activeId = active.id;
+    const sourceColumnId = active.data.current?.columnId;
+    const targetColumnId = over.data.current?.columnId;
+
+    if (!sourceColumnId || !targetColumnId) return;
+    if (sourceColumnId === targetColumnId) return;
+
+    setLocalBoard((prev) => {
+      if (!prev) return prev;
+
+      const sourceColumn = prev.columns.find((c) => c.id === sourceColumnId);
+      const targetColumn = prev.columns.find((c) => c.id === targetColumnId);
+      if (!sourceColumn || !targetColumn) return prev;
+
+      const activeCard = sourceColumn.cards.find((c) => c.id === activeId);
+      if (!activeCard) return prev;
+
+      return {
+        ...prev,
+        columns: prev.columns.map((column) => {
+          if (column.id === sourceColumnId) {
+            return {
+              ...column,
+              cards: column.cards.filter((c) => c.id !== activeId),
+            };
+          }
+
+          if (column.id === targetColumnId) {
+            return {
+              ...column,
+              cards: [...column.cards, activeCard],
+            };
+          }
+
+          return column;
+        }),
+      };
+    });
   }
 
   return (
@@ -79,7 +123,15 @@ function Board() {
       <div className="w-full max-w-5xl">
         {board ? board.id : "Loading board..."}
 
-        <DndContext onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
+        <DndContext
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={(e) => {
+            handleDragEnd(e);
+            setIsDragging(false);
+          }}
+          onDragOver={handleDragOver}
+          collisionDetection={closestCorners}
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
             {localBoard?.columns.map((column) => (
               <Column
