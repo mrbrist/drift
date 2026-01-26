@@ -16,7 +16,7 @@ function Board() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { board, addCard, editCard, removeCard, reloadBoard } = useBoard(id);
+  const { board, addCard, editCard, removeCard } = useBoard(id);
   const [isDragging, setIsDragging] = useState(false);
   const [localBoard, setLocalBoard] = useState(board);
 

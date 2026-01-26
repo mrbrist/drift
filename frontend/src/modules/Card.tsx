@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { sButton } from "./smallButton";
+import { iButton } from "./iconButton";
 
 function Card({ card, col, editCard, removeCard }: any) {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -28,16 +28,19 @@ function Card({ card, col, editCard, removeCard }: any) {
       >
         ☰
       </div>
-      <span className="text-slate-500 block pb-3">{card.id}</span>
-      <span className="text-amber-100 block pb-3">{card.title}</span>
-      {sButton("blue", "Update Card", false, "", () =>
-        editCard(col.id, card.id, {
-          title: "bob",
-        }),
-      )}
-      {sButton("red", "Delete Card", false, "", () =>
-        removeCard(col.id, card.id),
-      )}
+      <span className="text-amber-100 block pt-2 pb-3">{card.title}</span>
+
+      <div className="flex flex-row justify-between mr-3">
+        {iButton("blue", "edit", false, "", () =>
+          editCard(col.id, card.id, {
+            title: "bob",
+          }),
+        )}
+        <span className="text-slate-600 italic text-xs style block pt-2 pb-3">
+          {card.id.split("-")[4]}
+        </span>
+        {iButton("red", "trash", false, "", () => removeCard(col.id, card.id))}
+      </div>
     </div>
   );
 }
