@@ -353,23 +353,50 @@ func (cfg *APIConfig) NewCard(w http.ResponseWriter, r *http.Request) {
 func (cfg *APIConfig) UpdateCard(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	params := models.UpdateCardParams{}
-	err := decoder.Decode(&params)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
+	if err := decoder.Decode(&params); err != nil {
+		utils.RespondWithError(w, 400, "Couldn't decode parameters", err)
 		return
 	}
 
+	existing, err := cfg.DB.GetCard(r.Context(), params.ID)
+	if err != nil {
+		utils.RespondWithError(w, 404, "Card not found", err)
+		return
+	}
+
+	columnID := existing.ColumnID
+	if params.ColumnID != nil {
+		columnID = *params.ColumnID
+	}
+
+	title := existing.Title
+	if params.Title != nil {
+		title = *params.Title
+	}
+
+	position := existing.Position
+	if params.Position != nil {
+		position = *params.Position
+	}
+
 	desc := sql.NullString{
-		String: params.Description,
-		Valid:  true,
+		String: existing.Description.String,
+		Valid:  existing.Description.Valid,
+	}
+
+	if params.Description != nil {
+		desc = sql.NullString{
+			String: *params.Description,
+			Valid:  true,
+		}
 	}
 
 	card, err := cfg.DB.UpdateCard(r.Context(), database.UpdateCardParams{
 		ID:          params.ID,
-		ColumnID:    params.ColumnID,
-		Title:       params.Title,
+		ColumnID:    columnID,
+		Title:       title,
 		Description: desc,
-		Position:    params.Position,
+		Position:    position,
 	})
 	if err != nil {
 		utils.RespondWithError(w, 500, "Could not update card", err)
@@ -383,6 +410,7 @@ func (cfg *APIConfig) UpdateCard(w http.ResponseWriter, r *http.Request) {
 		Position:    card.Position,
 		CreatedAt:   card.CreatedAt,
 		UpdatedAt:   card.UpdatedAt,
+		ColumnID:    card.ColumnID,
 	})
 }
 

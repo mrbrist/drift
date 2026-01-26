@@ -33,7 +33,6 @@ function Card({ card, col, editCard, removeCard }: any) {
       {sButton("blue", "Update Card", false, "", () =>
         editCard(col.id, card.id, {
           title: "bob",
-          position: card.position,
         }),
       )}
       {sButton("red", "Delete Card", false, "", () =>

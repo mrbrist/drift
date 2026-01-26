@@ -71,7 +71,7 @@ function Board() {
     });
 
     // THIS IS REALLY BAD, THIS NEEDS FIXING
-    reloadBoard();
+    // reloadBoard();
   }
 
   function handleDragOver(event: DragOverEvent) {
@@ -127,7 +127,9 @@ function Board() {
           onDragStart={() => setIsDragging(true)}
           onDragEnd={(e) => {
             handleDragEnd(e);
-            setIsDragging(false);
+            requestAnimationFrame(() => {
+              setIsDragging(false);
+            });
           }}
           onDragOver={handleDragOver}
           collisionDetection={closestCorners}

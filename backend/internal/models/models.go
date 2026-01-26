@@ -13,6 +13,7 @@ type Card struct {
 	Position    float64   `json:"position"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+	ColumnID    uuid.UUID `json:"column_id"`
 }
 
 type Column struct {
@@ -80,9 +81,9 @@ type NewCardParams struct {
 }
 
 type UpdateCardParams struct {
-	ID          uuid.UUID `json:"id"`
-	ColumnID    uuid.UUID `json:"column_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Position    float64   `json:"position"`
+	ID          uuid.UUID  `json:"id"`
+	ColumnID    *uuid.UUID `json:"column_id,omitempty"`
+	Title       *string    `json:"title,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Position    *float64   `json:"position,omitempty"`
 }
