@@ -1,6 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { iButton } from "./iconButton";
+import { GripHorizontal } from "lucide-react";
 
 function Card({ card, col, editCard, removeCard }: any) {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -24,10 +25,12 @@ function Card({ card, col, editCard, removeCard }: any) {
     >
       <div
         {...listeners}
-        className="cursor-grab text-amber-300 font-semibold select-none"
+        className="cursor-grab select-none flex items-center justify-center bg-slate-700 hover:bg-slate-600 rounded-t-md p-2 transition-colors"
+        title="Drag to move"
       >
-        ☰
+        <GripHorizontal className="w-5" />
       </div>
+
       <span className="text-amber-100 block pt-2 pb-3">{card.title}</span>
 
       <div className="flex flex-row justify-between mr-3">
