@@ -5,6 +5,7 @@ import { bButton } from "./modules/bigButton";
 import { checkIfLoggedIn, handleLogout, getUserData } from "./api/auth";
 import type { UserInterface } from "./helpers/interfaces";
 import { useBoards } from "./api/useBoards";
+import { sButton } from "./modules/smallButton";
 
 function App() {
   const navigate = useNavigate();
@@ -52,42 +53,13 @@ function App() {
         {boards?.map((board) => (
           <h4 key={board.id}>
             {board.title} - <span className="text-slate-600">{board.id}</span>{" "}
-            <button
-              className="ml-3
-                        mb-3
-                        px-3 py-1
-                        text-sm font-medium
-                        text-red-500
-                        border border-red-500/30
-                        rounded-md
-                        hover:bg-red-500 hover:text-white
-                        hover:border-red-500
-                        transition-colors
-                        duration-150"
-              onClick={() => {
-                removeBoard(board.id);
-              }}
-            >
-              Delete
-            </button>
-            <button
-              className="ml-3
-                        mb-3
-                        px-3 py-1
-                        text-sm font-medium
-                        text-blue-500
-                        border border-blue-500/30
-                        rounded-md
-                        hover:bg-blue-500 hover:text-white
-                        hover:border-blue-500
-                        transition-colors
-                        duration-150"
-              onClick={() => {
-                navigate(`/board/${board.id}`);
-              }}
-            >
-              Open Board
-            </button>
+            {sButton("red", "Delete", false, "", () => removeBoard(board.id))}
+            {sButton("green", "Edit", false, "", () =>
+              navigate(`/board/${board.id}`),
+            )}
+            {sButton("blue", "Open", false, "", () =>
+              navigate(`/board/${board.id}`),
+            )}
           </h4>
         ))}
       </div>
