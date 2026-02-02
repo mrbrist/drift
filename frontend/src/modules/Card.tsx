@@ -4,16 +4,23 @@ import { iButton } from "./iconButton";
 import { GripHorizontal } from "lucide-react";
 
 function Card({ card, col, editCard, removeCard }: any) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: card.id,
-      data: {
-        columnId: col.id,
-      },
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: card.id,
+    data: {
+      columnId: col.id,
+    },
+  });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 50 : "auto",
   };
 
   return (
