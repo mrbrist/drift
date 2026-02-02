@@ -10,7 +10,7 @@ import { sButton } from "./modules/smallButton";
 function App() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState<UserInterface | null>(null);
-  const { boards, addBoard, removeBoard } = useBoards();
+  const { boards, addBoard, removeBoard, editBoard } = useBoards();
 
   function logout() {
     handleLogout(navigate);
@@ -55,7 +55,7 @@ function App() {
             {board.title} - <span className="text-slate-600">{board.id}</span>{" "}
             {sButton("red", "Delete", false, "", () => removeBoard(board.id))}
             {sButton("green", "Edit", false, "", () =>
-              navigate(`/board/${board.id}`),
+              editBoard(board.id, "jeff"),
             )}
             {sButton("blue", "Open", false, "", () =>
               navigate(`/board/${board.id}`),

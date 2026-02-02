@@ -149,6 +149,9 @@ func (cfg *APIConfig) NewBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *APIConfig) UpdateBoard(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	boardID := ctx.Value(boardIdContextKey).(uuid.UUID)
+
 	decoder := json.NewDecoder(r.Body)
 	params := models.UpdateBoardParams{}
 	err := decoder.Decode(&params)
@@ -157,6 +160,7 @@ func (cfg *APIConfig) UpdateBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	board, err := cfg.DB.UpdateBoard(r.Context(), database.UpdateBoardParams{
+		ID:    boardID,
 		Title: params.Title,
 	})
 	if err != nil {

@@ -84,12 +84,35 @@ export function useBoards() {
     }
   }
 
+  async function editBoard(id: string, title: string) {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${API_BASE}/board?board_id=${id}`, {
+        credentials: "include",
+        method: "PUT",
+        body: JSON.stringify({ title: title }),
+      });
+
+      if (!res.ok) throw new Error("Failed to edit board");
+
+      // setBoards((prev) => prev.filter((b) => b.id !== id));
+    } catch (err) {
+      console.error(err);
+      setError("Failed to edit board");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return {
     boards,
     loading,
     error,
     addBoard,
     removeBoard,
+    editBoard,
     reloadBoards: loadBoards,
   };
 }
