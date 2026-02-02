@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import driftLogo from "./assets/drift-logo.svg";
-import { bButton } from "./modules/bigButton";
+import { bButton } from "./components/bigButton";
 import { checkIfLoggedIn, handleLogout, getUserData } from "./api/auth";
 import type { UserInterface } from "./helpers/interfaces";
 import { useBoards } from "./api/useBoards";
-import { sButton } from "./modules/smallButton";
+import { sButton } from "./components/smallButton";
 
 function App() {
   const navigate = useNavigate();

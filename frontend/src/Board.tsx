@@ -6,10 +6,10 @@ import {
   type DragEndEvent,
   type DragOverEvent,
 } from "@dnd-kit/core";
-import { bButton } from "./modules/bigButton";
+import { bButton } from "./components/bigButton";
 import { checkIfLoggedIn, handleLogout } from "./api/auth";
 import { useBoard } from "./api/useBoard";
-import Column from "./modules/Column";
+import Column from "./kanban/Column";
 import { getNewCardPosition } from "./helpers/position";
 
 function Board() {

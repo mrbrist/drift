@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { iButton } from "./iconButton";
+import { iButton } from "../components/iconButton";
 import { GripHorizontal } from "lucide-react";
 
 function Card({ card, col, editCard, removeCard }: any) {

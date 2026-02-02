@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import driftLogo from "./assets/drift-logo.svg";
-import { bButton } from "./modules/bigButton";
+import { bButton } from "./components/bigButton";
 
 function Home() {
   const navigate = useNavigate();

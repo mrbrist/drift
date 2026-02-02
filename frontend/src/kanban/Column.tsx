@@ -4,7 +4,7 @@ import {
 } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import Card from "./Card";
-import { sButton } from "./smallButton";
+import { sButton } from "../components/smallButton";
 import type { CardInterface } from "../helpers/interfaces";
 
 type DroppableData = {
